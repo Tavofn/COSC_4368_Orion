@@ -4,23 +4,24 @@ from world.cell import Cell, CellType
 
 
 class PDWorld:
-    #startCell = (1,5)
-    startCell = Cell(CellType.REGULAR, (1,5))
+    # startCell = (1,5)
+    startCell = Cell(CellType.REGULAR, (1, 5))
     cells = []
+
     def __init__(self):
         self.cells = []
-        for x in range (1,6):
-            for y in range (1,6):
+        for x in range(1, 6):
+            for y in range(1, 6):
                 if x == y and (x % 2 == 1):
-                    self.cells.append(Cell(CellType.PICKUP, (x,y)))
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
                 elif x == 2 and y == 5:
-                    self.cells.append(Cell(CellType.DROPOFF, (x,y)))
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 elif x == 5 and y == 1:
-                    self.cells.append(Cell(CellType.DROPOFF, (x,y)))
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 elif x == 5 and y == 3:
-                    self.cells.append(Cell(CellType.DROPOFF, (x,y)))
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 else:
-                    self.cells.append(Cell(CellType.REGULAR, (x,y)))
+                    self.cells.append(Cell(CellType.REGULAR, (x, y)))
 
     def isInTerminalState(self):
         pickupDone = False
@@ -37,4 +38,4 @@ class PDWorld:
         for c in self.cells:
             if c.position[0] == x and c.position[1] == y:
                 return c
-        print("Could not find a cell with coordinates: " + "(" , x , "," , y , ")")
+        print("Could not find a cell with coordinates: " + "(", x, ",", y, ")")

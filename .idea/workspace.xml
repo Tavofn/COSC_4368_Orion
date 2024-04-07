@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="d23eeb6c-69fc-4bd0-8326-0e783d0562aa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/enc/bin/python3" beforeDir="false" afterPath="$PROJECT_DIR$/enc/bin/python3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/enc/lib64" beforeDir="false" afterPath="$PROJECT_DIR$/enc/lib64" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/policies.py" beforeDir="false" afterPath="$PROJECT_DIR$/algo/policies.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/rl.py" beforeDir="false" afterPath="$PROJECT_DIR$/algo/rl.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/venv/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/venv/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/world/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/world/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/world/cell.py" beforeDir="false" afterPath="$PROJECT_DIR$/world/cell.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/world/pdworld.py" beforeDir="false" afterPath="$PROJECT_DIR$/world/pdworld.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/world/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/world/state.py" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -156,6 +164,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "AfricanBolu"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Tavofn/COSC_4368_Orion.git",
+    "accountId": "b538f455-efc5-4f66-a3a7-c91adcc5b889"
+  }
+}]]></component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -175,11 +195,15 @@
       </list>
     </option>
   </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-11" />
     <option name="width" value="2041" />
     <option name="height" value="1381" />
   </component>
+  <component name="ProjectId" id="2ekxMjrfOsbbXtZMuwXlGQ7gRcO" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -215,12 +239,28 @@
       <pane id="Scope" />
     </panes>
   </component>
-  <component name="PropertiesComponent">
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/venv/main.py" />
-    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
-    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.main (1).executor": "Debug",
+    "Python.main.executor": "Run",
+    "Python.script.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/oo222/OneDrive/Documents/Artifical Intelligence/Group Project",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\14692\PycharmProjects\PD-World\venv" />
@@ -232,21 +272,10 @@
       <recent name="C:\Users\14692\PycharmProjects\PD-World" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
-  <component name="RunManager" selected="Python.script">
+  <component name="RunManager" selected="Python.main (1)">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="PD-World" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -267,8 +296,32 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PD-World" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\14692\PycharmProjects\PD-World\venv\bin\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/venv" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/venv/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="true" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="PD-World" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -291,6 +344,7 @@
     </configuration>
     <configuration name="script" type="PythonConfigurationType" factoryName="Python">
       <module name="PD-World" />
+      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -313,14 +367,25 @@
     </configuration>
     <list>
       <item itemvalue="Python.script" />
+      <item itemvalue="Python.main (1)" />
       <item itemvalue="Python.main" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main (1)" />
         <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-PY-241.14494.241" />
+        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -335,6 +400,10 @@
       <workItem from="1553832000405" duration="3340000" />
       <workItem from="1554140002909" duration="4463000" />
       <workItem from="1555037875280" duration="65198000" />
+      <workItem from="1712462332410" duration="1008000" />
+      <workItem from="1712528219338" duration="662000" />
+      <workItem from="1712529502622" duration="803000" />
+      <workItem from="1712530483196" duration="812000" />
     </task>
     <servers />
   </component>
@@ -380,7 +449,7 @@
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -427,6 +496,9 @@
         <watch expression="b[1].cget(&quot;text&quot;)" language="Python" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Group_Project$main.coverage" NAME="main Coverage Results" MODIFIED="1712530234162" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/venv" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">

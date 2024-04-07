@@ -11,11 +11,10 @@ class CellType(Enum):
 class Cell:
     def __init__(self, type, coordinates):
         self.type = type
-        #self.hasAgent = False
+        # self.hasAgent = False
         self.blocks = 5 if (self.type == CellType.PICKUP) else 0
         self.position = coordinates
         self.qValue = 0
-
 
     def updateQValue(self, newQValue):
         self.qValue = newQValue
