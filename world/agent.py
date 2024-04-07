@@ -44,7 +44,7 @@ class Agent:
     carriesBlock = False
 
     def __init__(self, world):
-        self.img = PhotoImage(file="robot.png")
+        self.img = PhotoImage(file="images/robot.png")
         self.img = self.img.subsample(13)
         self.world = world
         self.agentPosition = world.startCell
