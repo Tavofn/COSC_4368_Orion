@@ -1,10 +1,8 @@
 from tkinter import *
 
-from PIL import ImageTk, Image
-
 from algo.experiments import Experiment
-from world.agent import Agent, ActionType
-from world.cell import CellType, Cell
+from world.agent import Agent
+from world.cell import CellType
 from world.pdworld import PDWorld
 
 
@@ -198,7 +196,7 @@ class GUI:
 
     def experiment2(self):
         (Experiment(self.agent)).experiment2()
-        #self.updateAgentPosition(self.agent.agentPosition)
+        # self.updateAgentPosition(self.agent.agentPosition)
 
     def generate(self):
         self.main_window.mainloop()
