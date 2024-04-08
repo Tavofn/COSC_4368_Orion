@@ -100,6 +100,17 @@ class GUI:
                 label = Label(self.pd_world_window, text='(%s,%s)' % i.position, bd=0, fg = "white", highlightthickness = 1, relief=GROOVE, background="black", font=("Helvetica", 12))
                 label.grid(row=i.position[0],column=i.position[1], sticky='NSEW')
                 self.labels.append(label)
+                
+        for l in self.labels:
+            if l.cget("text") == "("+','.join(map(str, agent1.agentPosition.position)) + ")":
+                l.config(image=agent1.img)
+                l.image = agent1.img
+            if l.cget("text") == "("+','.join(map(str, agent2.agentPosition.position)) + ")":
+                l.config(image=agent2.img)
+                l.image = agent2.img
+            if l.cget("text") == "("+','.join(map(str, agent3.agentPosition.position)) + ")":
+                l.config(image=agent3.img)
+                l.image = agent3.img
 
     def updateQTable(self, x, y, action, qValue):
         #self.qTable_window.update_idletasks()
@@ -108,12 +119,10 @@ class GUI:
             self.qTable[state, action].configure(text=qValue)
         #self.qTable_window.update_idletasks()
 
-    def updateAgentPosition(self, agent, agentPos):
+    def updateAgentPosition(self, agent):
         self.pd_world_window.update_idletasks()
         for l in self.labels:
-            print(l.cget("text"))
-            if l.cget("text") == "("+','.join(map(str, agentPos.position)) + ")":
-                print()
+            if l.cget("text") == "("+','.join(map(str, agent.position)) + ")":
                 l.config(image=agent.img)
                 l.image = agent.img
             else:
@@ -160,15 +169,15 @@ class GUI:
         self.view_world_button.place(relx=0.5, rely=0.1, anchor=CENTER)
 
         self.experiment1_button = Button(self.main_window, text='Experiment 1', pady=10, width=25, background='#ADFF2F',
-                                         command=lambda: self.experiment2())
+                                         command=lambda: Experiment(agent1).experiment1())
         self.experiment2_button = Button(self.main_window, text='Experiment 2', pady=10, width=25, background='#ADFF2F',
-                                         command=lambda: self.experiment2())
+                                         command=lambda: Experiment.experiment2())
         self.experiment3_button = Button(self.main_window, text='Experiment 3', pady=10, width=25, background='#ADFF2F',
-                                         command=lambda: self.experiment2())
+                                         command=lambda: Experiment.experiment2())
         self.experiment4_button = Button(self.main_window, text='Experiment 4', pady=10, width=25, background='#ADFF2F',
-                                         command=lambda: self.experiment2())
+                                         command=lambda: Experiment.experiment2())
         self.experiment5_button = Button(self.main_window, text='Experiment 5', pady=10, width=25, background='#ADFF2F',
-                                         command=lambda: self.experiment2())
+                                         command=lambda: Experiment.experiment2())
         self.experiment1_button.grid()
         self.experiment1_button.place(relx=0.5, rely=0.4, anchor=CENTER)
         self.experiment2_button.grid()
