@@ -49,7 +49,7 @@ class RL:
             self.agent.move(self.action)  # perform action
 
             self.agent.interface.pd_world_window.update_idletasks()
-            self.agent.interface.updateAgentPosition(self.agent,self.agent.agentPosition)
+            self.agent.interface.updateAgentPosition(self.agent)
 
             self.logInfoAfterAction()
             newAgentPos = self.agent.agentPosition

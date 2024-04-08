@@ -102,15 +102,15 @@ class GUI:
                 self.labels.append(label)
                 
         for l in self.labels:
-            if l.cget("text") == "("+','.join(map(str, agent1.agentPosition.position)) + ")":
-                l.config(image=agent1.img)
-                l.image = agent1.img
-            if l.cget("text") == "("+','.join(map(str, agent2.agentPosition.position)) + ")":
+            if l.cget("text") == "("+','.join(map(str, self.agent1.agentPosition.position)) + ")":
+                l.config(image=self.agent1.img)
+                l.image = self.agent1.img
+            if l.cget("text") == "("+','.join(map(str, self.agent2.agentPosition.position)) + ")":
                 l.config(image=agent2.img)
-                l.image = agent2.img
-            if l.cget("text") == "("+','.join(map(str, agent3.agentPosition.position)) + ")":
+                l.image = self.agent2.img
+            if l.cget("text") == "("+','.join(map(str, self.agent3.agentPosition.position)) + ")":
                 l.config(image=agent3.img)
-                l.image = agent3.img
+                l.image = self.agent3.img
 
     def updateQTable(self, x, y, action, qValue):
         #self.qTable_window.update_idletasks()
@@ -122,7 +122,7 @@ class GUI:
     def updateAgentPosition(self, agent):
         self.pd_world_window.update_idletasks()
         for l in self.labels:
-            if l.cget("text") == "("+','.join(map(str, agent.position)) + ")":
+            if l.cget("text") == "("+','.join(map(str, agent.agentPosition.position)) + ")":
                 l.config(image=agent.img)
                 l.image = agent.img
             else:
@@ -169,7 +169,7 @@ class GUI:
         self.view_world_button.place(relx=0.5, rely=0.1, anchor=CENTER)
 
         self.experiment1_button = Button(self.main_window, text='Experiment 1', pady=10, width=25, background='#ADFF2F',
-                                         command=lambda: Experiment(agent1).experiment1())
+                                         command=lambda: Experiment(self.agent1).experiment2())
         self.experiment2_button = Button(self.main_window, text='Experiment 2', pady=10, width=25, background='#ADFF2F',
                                          command=lambda: Experiment.experiment2())
         self.experiment3_button = Button(self.main_window, text='Experiment 3', pady=10, width=25, background='#ADFF2F',
