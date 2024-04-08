@@ -21,10 +21,11 @@ class GUI:
     qTable = {}
     agent = None
 
-    def __init__(self, world, agent):
+    def __init__(self, world, agent1, agent2, agent3):
         self.pdWorld = world
-        self.agent = agent
-
+        self.agent1 = agent1
+        self.agent2 = agent2
+        self.agent3 = agent3
     def new_window(self, title):
         window = Toplevel(self.main_window)
         window.title(title)
@@ -35,16 +36,18 @@ class GUI:
             self.pd_world_window.grid_columnconfigure(2, weight=1)
             self.pd_world_window.grid_columnconfigure(3, weight=1)
             self.pd_world_window.grid_columnconfigure(4, weight=1)
-            self.pd_world_window.grid_columnconfigure(5, weight=4)
+            self.pd_world_window.grid_columnconfigure(5, weight=1)
             self.pd_world_window.grid_rowconfigure(0, weight=1)
             self.pd_world_window.grid_rowconfigure(1, weight=1)
-            self.pd_world_window.grid_rowconfigure(2, weight=0)
+            self.pd_world_window.grid_rowconfigure(2, weight=1)
             self.pd_world_window.grid_rowconfigure(3, weight=1)
-            self.pd_world_window.grid_rowconfigure(4, weight=0)
+            self.pd_world_window.grid_rowconfigure(4, weight=1)
             self.pd_world_window.grid_rowconfigure(5, weight=1)
             self.pd_world_window.geometry("650x650")
             self.create_labels()
-            self.updateAgentPosition(self.agent.agentPosition)
+            # self.updateAgentPosition(agent1,self.agent1.agentPosition)
+            # self.updateAgentPosition(agent2,self.agent2.agentPosition)
+            # self.updateAgentPosition(agent3,self.agent3.agentPosition)
         if title == "Q-Table":
             self.qTable_window = window
             self.qTable_window.geometry("290x550")
@@ -68,14 +71,15 @@ class GUI:
 
         for i in self.pdWorld.cells:
             if i.type == CellType.PICKUP:
-                frame = Frame(self.pd_world_window, background="blue")
+                frame = Frame(self.pd_world_window, background="red")
                 frame.grid(row=i.position[0], column=i.position[1], sticky="NSEW", pady=0, padx=0)
 
-                label = Label(frame, text='(%s,%s)' % i.position, bd=1, fg="blue", background="blue", font=("Helvetica", 12))
+                label = Label(frame, text='P', bd=1, fg="white", background="red", font=("Helvetica", 12))
                 label.grid(row=i.position[0], column=i.position[1], sticky='NSEW', pady=0, padx=0)
 
+                #blocks (right now, the money bags)
                 for x in range (0,i.blocks):
-                    block = Label(frame, fg="blue",bd=0, relief=RIDGE, bg="blue", compound=BOTTOM, height=15, width=15, image=self.block_img , anchor='center')
+                    block = Label(frame, fg="red",bd=0, relief=RIDGE, bg="red", compound=BOTTOM, image=self.block_img , anchor='center')
                     block.grid(row=2, column=x, pady=0, padx=0)
                     self.blocks.append((block, label))
                 self.labels.append(label)
@@ -84,7 +88,7 @@ class GUI:
                 frame = Frame(self.pd_world_window, background="green")
                 frame.grid(row=i.position[0], column=i.position[1], sticky="NSEW")
 
-                label = Label(self.pd_world_window, text='(%s,%s)' % i.position, bd=1, fg="green", relief=GROOVE, background="green", font=("Helvetica", 12))
+                label = Label(self.pd_world_window, text='D', bd=1, fg="white", highlightthickness = 1, relief=GROOVE, background="green", font=("Helvetica", 12))
                 label.grid(row=i.position[0], column=i.position[1], sticky='NSEW')
                 self.labels.append(label)
 
@@ -92,7 +96,7 @@ class GUI:
                 frame = Frame(self.pd_world_window, background="black")
                 frame.grid(row=i.position[0], column=i.position[1], sticky="NSEW")
 
-                label = Label(self.pd_world_window, text='(%s,%s)' % i.position, bd=1, fg = "black", highlightthickness = 50, relief=GROOVE, background="black", font=("Helvetica", 12))
+                label = Label(self.pd_world_window, text='(%s,%s)' % i.position, bd=0, fg = "white", highlightthickness = 1, relief=GROOVE, background="black", font=("Helvetica", 12))
                 label.grid(row=i.position[0],column=i.position[1], sticky='NSEW')
                 self.labels.append(label)
 
@@ -103,11 +107,13 @@ class GUI:
             self.qTable[state, action].configure(text=qValue)
         #self.qTable_window.update_idletasks()
 
-    def updateAgentPosition(self, agentPos):
+    def updateAgentPosition(self, agent, agentPos):
         self.pd_world_window.update_idletasks()
         for l in self.labels:
+            print(l.cget("text"))
             if l.cget("text") == "("+','.join(map(str, agentPos.position)) + ")":
-                l.config(image=self.agent.img)
+                print()
+                l.config(image=agent.img)
                 l.image = agent.img
             else:
                 l.config(image='')
@@ -146,8 +152,9 @@ class GUI:
                 break
 
     def create_pdworld(self):
+        #navigation bar, creates the buttons for experiments and pdworld viewing
         self.view_world_button = Button(self.main_window, text='View World', pady=10, width=25, background='#4d88ff',
-                                        command=lambda: self.new_window("PD-World"))
+                                        command=lambda: self.new_window("PD-World")) #lamnda calls function, example: calls creation of pdworld viewer.
 
         self.view_world_button.grid()
         self.view_world_button.place(relx=0.5, rely=0.1, anchor=CENTER)
@@ -175,6 +182,7 @@ class GUI:
 
 
     def create_qTable(self):
+        #navigation bar, creates the button for viewing qtable
         self.view_qTable_button = Button(self.main_window, text='View Q-Table', pady=10, width=25, background='#4d88ff',
                                          command=lambda: self.new_window("Q-Table"))
 
@@ -200,9 +208,13 @@ class GUI:
         self.pd_world_window.mainloop()
 
 world = PDWorld()
-agent = Agent(world)
-gui = GUI(world, agent)
-agent.setGUI(gui)
+agent1 = Agent(world,1)
+agent2 = Agent(world,2)
+agent3 = Agent(world,3)
+gui = GUI(world, agent1,agent2,agent3)
+agent1.setGUI(gui)
+agent2.setGUI(gui)
+agent3.setGUI(gui)
 gui.create_pdworld()
 gui.create_qTable()
 gui.generate()

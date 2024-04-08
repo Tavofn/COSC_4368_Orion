@@ -29,7 +29,7 @@ class Policy:
         self.agent.updateApplicableOperators()
         self.applicableOperators = self.agent.applicableOperators
 
-    # returns action in accordance with the random action policy
+    # returns action in accordance with the random action policybbb
     def pRandom(self):
         self.type = PolicyType.PRANDOM
         if Action.getApplicability(Action(ActionType.DROPOFF), self.agent):

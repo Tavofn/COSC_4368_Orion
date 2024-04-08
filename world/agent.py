@@ -42,11 +42,16 @@ class Agent:
     applicableOperators = set()
     carriesBlock = False
 
-    def __init__(self, world):
+    def __init__(self, world, agent_num):
         self.img = PhotoImage(file="images/robot.png")
         self.img = self.img.subsample(13)
         self.world = world
-        self.agentPosition = world.startCell
+        if agent_num == 1:
+            self.agentPosition = world.startCell_1
+        if agent_num == 2:
+            self.agentPosition = world.startCell_2
+        if agent_num == 3:
+            self.agentPosition = world.startCell_3
 
         op = [Action(ActionType.PICKUP),
               Action(ActionType.DROPOFF),

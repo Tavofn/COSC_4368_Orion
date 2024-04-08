@@ -5,7 +5,9 @@ from world.cell import Cell, CellType
 
 class PDWorld:
     #startCell = (1,5)
-    startCell = Cell(CellType.REGULAR, (1,5))
+    startCell_1 = Cell(CellType.REGULAR, (1,3))
+    startCell_2 = Cell(CellType.REGULAR, (3,3))
+    startCell_3 = Cell(CellType.REGULAR, (5,3))
     cells = []
     def __init__(self):
         self.cells = []
@@ -25,7 +27,8 @@ class PDWorld:
                     self.cells.append(Cell(CellType.DROPOFF, (x,y)))
                 else:
                     self.cells.append(Cell(CellType.REGULAR, (x,y)))
-
+       
+        
     def isInTerminalState(self):
         pickupDone = False
         dropoffDone = False
