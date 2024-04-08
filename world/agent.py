@@ -13,13 +13,13 @@ class ActionType(Enum):
     PICKUP = 5
     DROPOFF = 6
 
+
 class Action:
     type = None
     qValue = 0
     reward = None
 
-
-    def __init__(self,  type):
+    def __init__(self, type):
         self.type = type
 
         if type == ActionType.PICKUP or type == ActionType.DROPOFF:
@@ -32,6 +32,7 @@ class Action:
 
     def getApplicability(self, agent):
         return agent.validateActionType(self.type)
+
 
 class Agent:
     world = None
@@ -106,7 +107,8 @@ class Agent:
                 return False
 
         elif action_type == ActionType.PICKUP:
-            return self.agentPosition.blocks > 0 and self.agentPosition.type == CellType.PICKUP and (not self.carriesBlock)
+            return self.agentPosition.blocks > 0 and self.agentPosition.type == CellType.PICKUP and (
+                not self.carriesBlock)
 
         elif action_type == ActionType.DROPOFF:
             return self.agentPosition.blocks < 5 and self.agentPosition.type == CellType.DROPOFF and self.carriesBlock
@@ -120,7 +122,7 @@ class Agent:
         if action.type == ActionType.NORTH:
             self.newx = x - 1
             if self.validateMove(self.newx, y):
-                return self.world.getCell(self.newx, y) # New State
+                return self.world.getCell(self.newx, y)  # New State
         elif action.type == ActionType.EAST:
             self.newy = y + 1
             if self.validateMove(x, self.newy):
@@ -138,8 +140,8 @@ class Agent:
         else:
             return currentState
 
-
     """PD-WORLD FOR SOME REASON HAS X AND Y COORDINATES FLIPPED"""
+
     def move(self, action):
         actionSuccessful = True
 
@@ -199,7 +201,6 @@ class Agent:
         #     print("agent attempted to move ", end="")
         #     print(action_type, end="")
 
-
     def validateMove(self, x, y):
         if self.validateNewX(x) and self.validateNewY(y):
             return True
@@ -209,6 +210,7 @@ class Agent:
         if x > 5 or x < 1:
             return False
         return True
+
     def validateNewY(self, y):
         if y > 5 or y < 1:
             return False

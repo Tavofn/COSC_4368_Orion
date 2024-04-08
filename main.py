@@ -1,11 +1,10 @@
 from tkinter import *
 
-from PIL import ImageTk, Image
-
 from algo.experiments import Experiment
-from world.agent import Agent, ActionType
-from world.cell import CellType, Cell
+from world.agent import Agent
+from world.cell import CellType
 from world.pdworld import PDWorld
+
 
 class GUI:
     main_window = Tk()
@@ -51,23 +50,25 @@ class GUI:
         if title == "Q-Table":
             self.qTable_window = window
             self.qTable_window.geometry("290x550")
-            for c in range (1,len(self.pdWorld.cells)+1):
-                for o in range (1, len(self.agent.operators)+1):
-                    qLabel = Label(self.qTable_window, text='0', borderwidth=0, width=5, height=1, relief=SOLID, fg="white", bg="black")
-                    qLabel.grid(row=c,column=o, sticky="", padx=2)
-                    qLabel.columnconfigure(0,weight=1)
+            for c in range(1, len(self.pdWorld.cells) + 1):
+                for o in range(1, len(self.agent.operators) + 1):
+                    qLabel = Label(self.qTable_window, text='0', borderwidth=0, width=5, height=1, relief=SOLID,
+                                   fg="white", bg="black")
+                    qLabel.grid(row=c, column=o, sticky="", padx=2)
+                    qLabel.columnconfigure(0, weight=1)
                     qLabel.rowconfigure(0, weight=1)
                     self.qLabels.append(qLabel)
-                    self.qTable[(c,o)] = qLabel
-                    Label(self.qTable_window, text=self.agent.operators[o-1].type.name, font=("Helvetica", 7)).grid(row=0,
-                                                                                                                  column=o,
-                                                                                                                  sticky="EW")
-                    Label(self.qTable_window, text=self.pdWorld.cells[c-1].position).grid(column=0, row=c, sticky="NSEW")
+                    self.qTable[(c, o)] = qLabel
+                    Label(self.qTable_window, text=self.agent.operators[o - 1].type.name, font=("Helvetica", 7)).grid(
+                        row=0,
+                        column=o,
+                        sticky="EW")
+                    Label(self.qTable_window, text=self.pdWorld.cells[c - 1].position).grid(column=0, row=c,
+                                                                                            sticky="NSEW")
 
     def create_labels(self):
         self.block_img = PhotoImage(file="images/money-bag.png")
         self.block_img = self.block_img.subsample(30)
-
 
         for i in self.pdWorld.cells:
             if i.type == CellType.PICKUP:
@@ -100,10 +101,10 @@ class GUI:
                 label.grid(row=i.position[0],column=i.position[1], sticky='NSEW')
                 self.labels.append(label)
 
-    def updateQTable(self, x,y,action, qValue):
+    def updateQTable(self, x, y, action, qValue):
         #self.qTable_window.update_idletasks()
-        if (x,y) in self.qTable:
-            state = self.checkState(x,y)
+        if (x, y) in self.qTable:
+            state = self.checkState(x, y)
             self.qTable[state, action].configure(text=qValue)
         #self.qTable_window.update_idletasks()
 
@@ -123,7 +124,7 @@ class GUI:
     def addBlock(self, cell):
         self.pd_world_window.update_idletasks()
         for b in self.blocks:
-            if b[1].cget("text") == "("+','.join(map(str, cell.position)) + ")":
+            if b[1].cget("text") == "(" + ','.join(map(str, cell.position)) + ")":
                 b[1].config(compound=BOTTOM, height=15, width=15, image=self.block_img, anchor='w', justify=CENTER)
                 b[1].image = self.block_img
                 try:
@@ -148,7 +149,6 @@ class GUI:
                     self.pd_world_window.update_idletasks()
                     self.pd_world_window.update()
 
-
                 break
 
     def create_pdworld(self):
@@ -161,7 +161,7 @@ class GUI:
 
         self.experiment1_button = Button(self.main_window, text='Experiment 1', pady=10, width=25, background='#ADFF2F',
                                          command=lambda: self.experiment2())
-        self.experiment2_button = Button(self.main_window, text='Experiment 2', pady=10, width=25, background ='#ADFF2F',
+        self.experiment2_button = Button(self.main_window, text='Experiment 2', pady=10, width=25, background='#ADFF2F',
                                          command=lambda: self.experiment2())
         self.experiment3_button = Button(self.main_window, text='Experiment 3', pady=10, width=25, background='#ADFF2F',
                                          command=lambda: self.experiment2())
@@ -179,7 +179,6 @@ class GUI:
         self.experiment4_button.place(relx=0.5, rely=0.7, anchor=CENTER)
         self.experiment5_button.grid()
         self.experiment5_button.place(relx=0.5, rely=0.8, anchor=CENTER)
-
 
     def create_qTable(self):
         #navigation bar, creates the button for viewing qtable
@@ -201,11 +200,12 @@ class GUI:
 
     def experiment2(self):
         (Experiment(self.agent)).experiment2()
-        #self.updateAgentPosition(self.agent.agentPosition)
+        # self.updateAgentPosition(self.agent.agentPosition)
 
     def generate(self):
         self.main_window.mainloop()
         self.pd_world_window.mainloop()
+
 
 world = PDWorld()
 agent1 = Agent(world,1)

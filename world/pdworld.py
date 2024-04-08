@@ -9,22 +9,23 @@ class PDWorld:
     startCell_2 = Cell(CellType.REGULAR, (3,3))
     startCell_3 = Cell(CellType.REGULAR, (5,3))
     cells = []
+
     def __init__(self):
         self.cells = []
         for x in range (1,6):
             for y in range (1,6):
                 if x == 1 and y == 5:
-                    self.cells.append(Cell(CellType.PICKUP, (x,y)))
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
                 elif x == 2 and y == 4:
-                    self.cells.append(Cell(CellType.PICKUP, (x,y)))
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
                 elif x == 5 and y == 2:
-                    self.cells.append(Cell(CellType.PICKUP, (x,y)))
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
                 elif x == 1 and y == 1:
-                    self.cells.append(Cell(CellType.DROPOFF, (x,y)))
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 elif x == 3 and y == 1:
-                    self.cells.append(Cell(CellType.DROPOFF, (x,y)))
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 elif x == 4 and y == 5:
-                    self.cells.append(Cell(CellType.DROPOFF, (x,y)))
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 else:
                     self.cells.append(Cell(CellType.REGULAR, (x,y)))
        
@@ -44,4 +45,4 @@ class PDWorld:
         for c in self.cells:
             if c.position[0] == x and c.position[1] == y:
                 return c
-        print("Could not find a cell with coordinates: " + "(" , x , "," , y , ")")
+        print("Could not find a cell with coordinates: " + "(", x, ",", y, ")")

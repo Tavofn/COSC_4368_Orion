@@ -15,6 +15,7 @@ class PolicyType(Enum):
     PEXPLOIT = 2
     PGREEDY = 3
 
+
 class Policy:
     applicableOperators = set()
     canPickup = True
@@ -22,6 +23,7 @@ class Policy:
     world = None
     agent = None
     type = None
+
     def __init__(self, type, agent):
         self.type = type
         self.world = agent.world
@@ -37,7 +39,7 @@ class Policy:
         elif Action.getApplicability(Action(ActionType.PICKUP), self.agent):
             return Action(ActionType.PICKUP)
         else:
-            randomOperator = random.randint(0,self.applicableOperators.__len__()-1)
+            randomOperator = random.randint(0, self.applicableOperators.__len__() - 1)
             if self.applicableOperators is not None:
                 ap = list(self.applicableOperators)
                 return Action(ap[randomOperator].type)
@@ -45,7 +47,7 @@ class Policy:
     # returns action in accordance with the exploit action policy
     def pExploit(self, operator):
         self.type = PolicyType.PEXPLOIT
-        if (self.canDropoff and self.canPickup):
+        if self.canDropoff and self.canPickup:
             return operator
         else:
             highestQValue = 0
@@ -54,7 +56,7 @@ class Policy:
             for o in self.applicableOperators:
                 if o.qValue > highestQValue:
                     highestQValue = o.qValue
-                    probability = [highestQValue]*80 * self.applicableOperators[randomOperator] * 20
+                    probability = [highestQValue] * 80 * self.applicableOperators[randomOperator] * 20
                     random.choice(probability)
                     op = o
                 elif o.qValue == highestQValue:
@@ -82,9 +84,7 @@ class Policy:
             return op
 
     def break_tie(self, o1, o2):
-        randomOp = random.randint(0,2)
+        randomOp = random.randint(0, 2)
         if randomOp == 1:
             return o1
         return o2
-
-
