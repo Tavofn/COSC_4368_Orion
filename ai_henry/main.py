@@ -1,5 +1,5 @@
-import numpy as np
 import random
+import numpy as np
 
 # Constants for the world size and parameters
 WORLD_SIZE = (5, 5)  # Assuming a 5x5 grid for simplicity
@@ -22,9 +22,14 @@ class PDWorld:
     def __init__(self):
         self.pickup_locations = {loc: BLOCKS_AT_PICKUP for loc in PICKUP_LOCATIONS}
         self.dropoff_locations = {loc: 0 for loc in DROPOFF_LOCATIONS}
-        self.agents = {'red': (4, 2), 'blue': (2, 2), 'black': (0, 2)}  # Initial positions
-        self.blocks_carried = {agent: 0 for agent in self.agents}  # Blocks being carried by agents
-        self.q_table = np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1], len(ACTIONS)))  # Simplified Q-table
+        self.agents = {'red': (4, 2), 'blue': (2, 2), 'black': (0, 2)}
+        self.blocks_carried = {agent: 0 for agent in self.agents}
+        # Separate Q-table for each agent
+        self.q_tables = {
+            'red': np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1] * 2, len(ACTIONS))),
+            'blue': np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1] * 2, len(ACTIONS))),
+            'black': np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1] * 2, len(ACTIONS)))
+        }
         
     def reset(self):
         self.pickup_locations = {loc: BLOCKS_AT_PICKUP for loc in PICKUP_LOCATIONS}
@@ -85,51 +90,49 @@ class PDWorld:
             print(' '.join(row))
             
     def get_state(self, agent):
-        """Calculate the state index from the agent's position and whether it is carrying a block."""
         pos = self.agents[agent]
         carrying_block = 1 if self.blocks_carried[agent] > 0 else 0
-        return (pos[0] * WORLD_SIZE[1] + pos[1]) * 2 + carrying_block
+        state_index = (pos[0] * WORLD_SIZE[1] + pos[1]) * 2 + carrying_block
+        return state_index
 
-    def select_action(self, state, policy):
-        """Select an action based on the current policy."""
+    def select_action(self, agent, policy):
+        state = self.get_state(agent)
         if policy == "PRANDOM":
             return random.choice(ACTIONS)
         elif policy == "PEXPLOIT":
             if random.random() < EPSILON:
                 return random.choice(ACTIONS)
             else:
-                return ACTIONS[np.argmax(self.q_table[state])]
+                return ACTIONS[np.argmax(self.q_tables[agent][state])]
         else:  # PGREEDY
-            return ACTIONS[np.argmax(self.q_table[state])]
+            return ACTIONS[np.argmax(self.q_tables[agent][state])]
 
     def simulate_action(self, agent, action):
-        """Simulate an action taken by the agent and return the reward and the new state."""
-        # Initial implementation of action effects and reward calculation
-        reward = -1  # Default penalty for moving
-        if action == 'pickup' and self.agents[agent] in PICKUP_LOCATIONS and self.blocks_carried[agent] < 1:
-            reward = 10  # Successful pickup
-        elif action == 'dropoff' and self.agents[agent] in DROPOFF_LOCATIONS and self.blocks_carried[agent] > 0:
-            reward = 10  # Successful dropoff
-
+        reward, _ = -1, self.get_state(agent)  # Default penalty for movement
         self.step({agent: action})
-        next_state = self.get_state(agent)
-        return reward, next_state
+        new_state = self.get_state(agent)
+        if action == 'pickup' and self.agents[agent] in PICKUP_LOCATIONS and self.blocks_carried[agent] == 0:
+            reward = 10  # Successful pickup
+        elif action == 'dropoff' and self.agents[agent] in DROPOFF_LOCATIONS and self.blocks_carried[agent] == 1:
+            reward = 10  # Successful dropoff
+        return reward, new_state
 
     def update_q_value(self, agent, action, reward, next_state):
-        """Update the Q-table based on the action taken."""
         state = self.get_state(agent)
         action_index = ACTIONS.index(action)
-        future_rewards = np.max(self.q_table[next_state])
-        self.q_table[state, action_index] = (1 - LEARNING_RATE) * self.q_table[state, action_index] + \
-                                            LEARNING_RATE * (reward + GAMMA * future_rewards)
+        q_table = self.q_tables[agent]
+        future_rewards = np.max(q_table[next_state])
+        q_table[state, action_index] = (
+            (1 - LEARNING_RATE) * q_table[state, action_index] +
+            LEARNING_RATE * (reward + GAMMA * future_rewards)
+        )
 
     def run(self):
-        """Run the simulation with Q-learning for a defined number of steps."""
         policy = "PRANDOM"
         for step in range(STEPS):
             if step == PRANDOM_STEPS:
-                policy = "PGREEDY"  # Switch policy
-            for agent in self.agents.keys():
+                policy = "PGREEDY"
+            for agent in self.agents:
                 current_state = self.get_state(agent)
                 action = self.select_action(current_state, policy)
                 reward, next_state = self.simulate_action(agent, action)
