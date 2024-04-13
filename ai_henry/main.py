@@ -37,9 +37,9 @@ class Agent:
 class PDWorld:
     def __init__(self):
         self.agents = {
-            'red': Agent((3, 3), 'Red'),
+            'red': Agent((4, 3), 'Red'),
             'blue': Agent((3, 5), 'Blue'),
-            'black': Agent((3, 1), 'Black')
+            'black': Agent((2, 3), 'Black')
         }
         self.pickup_cells = {
             (1, 5): 5,  # (15)
@@ -49,7 +49,7 @@ class PDWorld:
         self.dropoff_cells = {
             (1, 1): 0,  # (11)
             (3, 1): 0,  # (31)
-            (4, 5): 0   # (45)
+            (4, 5): 0   # (45)hhgg
         }
         self.grid_size = (5, 5)  # Assuming a 5x5 grid
 
@@ -73,7 +73,12 @@ class PDWorld:
             grid[x-1][y-1] = f'D{blocks}'
         for agent in self.agents.values():
             x, y = agent.position
-            grid[x-1][y-1] = agent.name[0]
+            if agent.name == "Black":
+                grid[x-1][y-1] = "Ba"
+            elif agent.name == "Blue":
+                grid[x-1][y-1] = "Bu"
+            else:
+                grid[x-1][y-1] = agent.name[0]
         for row in grid:
             print(' '.join(row))
 
@@ -216,7 +221,7 @@ simulate(world, 10, 'greedy')
 
 
 # Run the simulation
-simulate(world, 10, 'random')
+# simulate(world, 10, 'random')
 
 
 # # Example use of the classes
