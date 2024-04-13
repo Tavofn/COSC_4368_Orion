@@ -1,146 +1,234 @@
-import random
 import numpy as np
+import random
+class Agent:
+    def __init__(self, start_position, name):
+        self.position = start_position
+        self.name = name
+        self.has_block = False  # Indicates whether the agent is carrying a block
 
-# Constants for the world size and parameters
-WORLD_SIZE = (5, 5)  # Assuming a 5x5 grid for simplicity
-PICKUP_LOCATIONS = [(0, 4), (1, 3), (4, 1)]  # Example pickup locations
-DROPOFF_LOCATIONS = [(0, 0), (2, 0), (3, 4)]  # Example dropoff locations
-BLOCKS_AT_PICKUP = 5  # Initial blocks at pickup locations
-CAPACITY_DROPOFF = 5  # Capacity at dropoff locations
-N_AGENTS = 3  # Number of agents
-ACTIONS = ['north', 'south', 'east', 'west', 'pickup', 'dropoff']  # Possible actions
-EPSILON = 0.2  # For exploration in PEXPLOIT
+    def move(self, direction, world):
+        moves = {
+            'north': (-1, 0),
+            'south': (1, 0),
+            'east': (0, 1),
+            'west': (0, -1)
+        }
+        if direction in moves:
+            new_x = self.position[0] + moves[direction][0]
+            new_y = self.position[1] + moves[direction][1]
+            new_position = (new_x, new_y)
+            if world.within_bounds(new_position):  # Move only if within bounds
+                self.position = new_position
 
-# Parameters for Q-learning
-LEARNING_RATE = 0.3
-GAMMA = 0.5
-STEPS = 9000
-PRANDOM_STEPS = 500  # Initial steps with PRANDOM
+    def pickup(self, world):
+        if world.is_pickup_cell(self.position) and world.pickup_cells[self.position] > 0 and not self.has_block:
+            self.has_block = True
+            world.pickup_cells[self.position] -= 1
 
-# Setting up the initial state of the world
+    def dropoff(self, world):
+        if world.is_dropoff_cell(self.position) and world.dropoff_cells[self.position] < 5 and self.has_block:
+            self.has_block = False
+            world.dropoff_cells[self.position] += 1
+
+    def __repr__(self):
+        return f"{self.name}(Position: {self.position}, Carries Block: {self.has_block})"
+
+
 class PDWorld:
     def __init__(self):
-        self.pickup_locations = {loc: BLOCKS_AT_PICKUP for loc in PICKUP_LOCATIONS}
-        self.dropoff_locations = {loc: 0 for loc in DROPOFF_LOCATIONS}
-        self.agents = {'red': (4, 2), 'blue': (2, 2), 'black': (0, 2)}
-        self.blocks_carried = {agent: 0 for agent in self.agents}
-        # Separate Q-table for each agent
-        self.q_tables = {
-            'red': np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1] * 2, len(ACTIONS))),
-            'blue': np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1] * 2, len(ACTIONS))),
-            'black': np.zeros((WORLD_SIZE[0] * WORLD_SIZE[1] * 2, len(ACTIONS)))
+        self.agents = {
+            'red': Agent((4, 3), 'Red'),
+            'blue': Agent((3, 5), 'Blue'),
+            'black': Agent((2, 3), 'Black')
         }
-        
-    def reset(self):
-        self.pickup_locations = {loc: BLOCKS_AT_PICKUP for loc in PICKUP_LOCATIONS}
-        self.dropoff_locations = {loc: 0 for loc in DROPOFF_LOCATIONS}
-        self.agents = {'red': (4, 2), 'blue': (2, 2), 'black': (0, 2)}
-        self.blocks_carried = {agent: 0 for agent in self.agents}
-        # Note: Q-table is not reset here to continue learning across simulations
-        
-    def is_move_valid(self, new_pos):
-        if not (0 <= new_pos[0] < WORLD_SIZE[0] and 0 <= new_pos[1] < WORLD_SIZE[1]):
-            return False
-        if new_pos in self.agents.values():
-            return False
-        return True
+        self.pickup_cells = {
+            (1, 5): 5,  # (15)
+            (2, 4): 5,  # (24)
+            (5, 2): 5   # (52)
+        }
+        self.dropoff_cells = {
+            (1, 1): 0,  # (11)
+            (3, 1): 0,  # (31)
+            (4, 5): 0   # (45)hhgg
+        }
+        self.grid_size = (5, 5)  # Assuming a 5x5 grid
 
-    def move_agent(self, agent, direction):
-        current_pos = self.agents[agent]
-        if direction == 'north' and self.is_move_valid((current_pos[0] - 1, current_pos[1])):
-            self.agents[agent] = (current_pos[0] - 1, current_pos[1])
-        elif direction == 'south' and self.is_move_valid((current_pos[0] + 1, current_pos[1])):
-            self.agents[agent] = (current_pos[0] + 1, current_pos[1])
-        elif direction == 'east' and self.is_move_valid((current_pos[0], current_pos[1] + 1)):
-            self.agents[agent] = (current_pos[0], current_pos[1] + 1)
-        elif direction == 'west' and self.is_move_valid((current_pos[0], current_pos[1] - 1)):
-            self.agents[agent] = (current_pos[0], current_pos[1] - 1)
+    def within_bounds(self, position):
+        x, y = position
+        return 1 <= x <= self.grid_size[0] and 1 <= y <= self.grid_size[1]
 
-    def perform_pickup(self, agent):
-        if self.agents[agent] in self.pickup_locations and self.blocks_carried[agent] < self.max_blocks_carried:
-            self.blocks_carried[agent] += 1
-            self.pickup_locations[self.agents[agent]] -= 1
+    def is_pickup_cell(self, position):
+        return position in self.pickup_cells
 
-    def perform_dropoff(self, agent):
-        if self.agents[agent] in self.dropoff_locations and self.blocks_carried[agent] > 0:
-            self.blocks_carried[agent] -= 1
-            self.dropoff_locations[self.agents[agent]] += 1
+    def is_dropoff_cell(self, position):
+        return position in self.dropoff_cells
 
-    def step(self, agent_actions):
-        for agent, action in agent_actions.items():
-            if action in ['north', 'south', 'east', 'west']:
-                self.move_agent(agent, action)
-            elif action == 'pickup':
-                self.perform_pickup(agent)
-            elif action == 'dropoff':
-                self.perform_dropoff(agent)
-
-    def print_world(self):
-        world_map = [['.' for _ in range(WORLD_SIZE[0])] for _ in range(WORLD_SIZE[1])]
-        for loc in self.pickup_locations:
-            if self.pickup_locations[loc] > 0:
-                world_map[loc[0]][loc[1]] = 'P'
-        for loc in self.dropoff_locations:
-            if self.dropoff_locations[loc] < CAPACITY_DROPOFF:
-                world_map[loc[0]][loc[1]] = 'D'
-        for agent, pos in self.agents.items():
-            symbol = agent[0].upper()
-            world_map[pos[0]][pos[1]] = symbol
-        for row in world_map:
-            print(' '.join(row))
-            
-    def get_state(self, agent):
-        pos = self.agents[agent]
-        carrying_block = 1 if self.blocks_carried[agent] > 0 else 0
-        state_index = (pos[0] * WORLD_SIZE[1] + pos[1]) * 2 + carrying_block
-        return state_index
-
-    def select_action(self, agent, policy):
-        state = self.get_state(agent)
-        if policy == "PRANDOM":
-            return random.choice(ACTIONS)
-        elif policy == "PEXPLOIT":
-            if random.random() < EPSILON:
-                return random.choice(ACTIONS)
+    def display_world(self):
+        grid = [['.' for _ in range(self.grid_size[1])] for _ in range(self.grid_size[0])]
+        for pos, blocks in self.pickup_cells.items():
+            x, y = pos
+            grid[x-1][y-1] = f'P{blocks}'
+        for pos, blocks in self.dropoff_cells.items():
+            x, y = pos
+            grid[x-1][y-1] = f'D{blocks}'
+        for agent in self.agents.values():
+            x, y = agent.position
+            if agent.name == "Black":
+                grid[x-1][y-1] = "Ba"
+            elif agent.name == "Blue":
+                grid[x-1][y-1] = "Bu"
             else:
-                return ACTIONS[np.argmax(self.q_tables[agent][state])]
-        else:  # PGREEDY
-            return ACTIONS[np.argmax(self.q_tables[agent][state])]
+                grid[x-1][y-1] = agent.name[0]
+        for row in grid:
+            print(' '.join(row))
 
-    def simulate_action(self, agent, action):
-        reward, _ = -1, self.get_state(agent)  # Default penalty for movement
-        self.step({agent: action})
-        new_state = self.get_state(agent)
-        if action == 'pickup' and self.agents[agent] in PICKUP_LOCATIONS and self.blocks_carried[agent] == 0:
-            reward = 10  # Successful pickup
-        elif action == 'dropoff' and self.agents[agent] in DROPOFF_LOCATIONS and self.blocks_carried[agent] == 1:
-            reward = 10  # Successful dropoff
-        return reward, new_state
+# Initial setup for reinforcement learning algorithms
+class RLAlgorithm:
+    def __init__(self, learning_rate=0.1, discount_factor=0.9):
+        self.q_table = {}
+        self.learning_rate = learning_rate
+        self.discount_factor = discount_factor
 
-    def update_q_value(self, agent, action, reward, next_state):
-        state = self.get_state(agent)
-        action_index = ACTIONS.index(action)
-        q_table = self.q_tables[agent]
-        future_rewards = np.max(q_table[next_state])
-        q_table[state, action_index] = (
-            (1 - LEARNING_RATE) * q_table[state, action_index] +
-            LEARNING_RATE * (reward + GAMMA * future_rewards)
+    def update_q_table(self, current_state, action, reward, next_state):
+        pass  # Placeholder for Q-learning and SARSA update rules
+
+
+class QLearning(RLAlgorithm):
+    def update_q_table(self, current_state, action, reward, next_state, next_action=None):
+        # Q-Learning update rule
+        if (current_state, action) not in self.q_table:
+            self.q_table[(current_state, action)] = 0  # Initialize if not present
+
+        max_q_next = max(self.q_table.get((next_state, a), 0) for a in ['north', 'south', 'east', 'west', 'pickup', 'dropoff'])
+        self.q_table[(current_state, action)] += self.learning_rate * (
+            reward + self.discount_factor * max_q_next - self.q_table[(current_state, action)]
         )
 
-    def run(self):
-        policy = "PRANDOM"
-        for step in range(STEPS):
-            if step == PRANDOM_STEPS:
-                policy = "PGREEDY"
-            for agent in self.agents:
-                current_state = self.get_state(agent)
-                action = self.select_action(current_state, policy)
-                reward, next_state = self.simulate_action(agent, action)
-                self.update_q_value(agent, action, reward, next_state)
+class SARSA(RLAlgorithm):
+    def update_q_table(self, current_state, action, reward, next_state, next_action):
+        # SARSA update rule
+        if (current_state, action) not in self.q_table:
+            self.q_table[(current_state, action)] = 0  # Initialize if not present
 
-    
-world = PDWorld()
-world.print_world()
-world.run()  # Run the Q-learning simulation
-print("\n")
-world.print_world()
+        next_q = self.q_table.get((next_state, next_action), 0)  # Next action is part of the update
+        self.q_table[(current_state, action)] += self.learning_rate * (
+            reward + self.discount_factor * next_q - self.q_table[(current_state, action)]
+        )
+
+# Define Agent Policies
+def choose_action(world, agent, q_learning, policy):
+    valid_actions = ['north', 'south', 'east', 'west', 'pickup', 'dropoff']
+    if policy == 'random':
+        return random.choice(valid_actions)
+    elif policy in ['exploitative', 'greedy']:
+        q_values = {action: q_learning.q_table.get((agent.position, action), 0) for action in valid_actions}
+        if policy == 'exploitative' and random.random() < 0.8:
+            return max(q_values, key=q_values.get)
+        elif policy == 'greedy':
+            return max(q_values, key=q_values.get)
+        else:
+            return random.choice(valid_actions)
+
+# Simulation Loop
+def simulate(world, num_steps, policy):
+    q_learning = QLearning()
+    for step in range(num_steps):
+        for name, agent in world.agents.items():
+            action = choose_action(world, agent, q_learning, policy)
+            current_state = agent.position
+            if action in ['north', 'south', 'east', 'west']:
+                agent.move(action, world)
+            elif action == 'pickup':
+                agent.pickup(world)
+            elif action == 'dropoff':
+                agent.dropoff(world)
+            next_state = agent.position
+            reward = -1  # Assume a default reward for movement
+            if action == 'pickup' or action == 'dropoff':
+                reward = 13  # Adjusted reward for successful interaction
+            # Q-learning update (could switch to SARSA)
+            q_learning.update_q_table(current_state, action, reward, next_state)
+        world.display_world()
+        print(f"Step {step + 1} complete")
+        
+        # Define applicable actions based on current state to make decisions more intelligent
+def applicable_actions(agent, world):
+    actions = []
+    x, y = agent.position
+    # Movement actions
+    if world.within_bounds((x - 1, y)):  # North
+        actions.append('north')
+    if world.within_bounds((x + 1, y)):  # South
+        actions.append('south')
+    if world.within_bounds((x, y + 1)):  # East
+        actions.append('east')
+    if world.within_bounds((x, y - 1)):  # West
+        actions.append('west')
+    # Pickup and dropoff actions
+    if world.is_pickup_cell(agent.position) and world.pickup_cells[agent.position] > 0 and not agent.has_block:
+        actions.append('pickup')
+    if world.is_dropoff_cell(agent.position) and world.dropoff_cells[agent.position] < 5 and agent.has_block:
+        actions.append('dropoff')
+    return actions
+
+def choose_action(world, agent, q_learning, policy):
+    actions = applicable_actions(agent, world)
+    if not actions:  # Fallback if no actions are applicable
+        return None
+    if policy == 'random':
+        return random.choice(actions)
+    else:
+        q_values = {action: q_learning.q_table.get((agent.position, action), 0) for action in actions}
+        if policy == 'exploitative':
+            if random.random() < 0.8:
+                return max(q_values, key=q_values.get)  # Exploit
+            else:
+                return random.choice(actions)  # Explore
+        elif policy == 'greedy':
+            return max(q_values, key=q_values.get)  # Always exploit
+
+# Enhanced simulation loop to handle different policies and smarter actions
+def simulate(world, num_steps, policy):
+    q_learning = QLearning()
+    for step in range(num_steps):
+        print(f"\nStep {step + 1} starting:")
+        for name, agent in world.agents.items():
+            action = choose_action(world, agent, q_learning, policy)
+            if not action:
+                continue  # Skip if no valid action is possible
+            current_state = agent.position
+            if action in ['north', 'south', 'east', 'west']:
+                agent.move(action, world)
+            elif action == 'pickup':
+                agent.pickup(world)
+            elif action == 'dropoff':
+                agent.dropoff(world)
+            next_state = agent.position
+            reward = -1  # Assume a default reward for movement
+            if action in ['pickup', 'dropoff']:
+                reward = 13  # Reward for interacting with blocks
+            # Update Q-table using Q-learning
+            q_learning.update_q_table(current_state, action, reward, next_state)
+        world.display_world()
+
+# Run simulations with different policies
+world = PDWorld()  # Reset world
+print("Running simulation with Exploitative Policy:")
+simulate(world, 10, 'exploitative')
+world = PDWorld()  # Reset world for a clean start
+print("\nRunning simulation with Greedy Policy:")
+simulate(world, 10, 'greedy')
+
+
+# Run the simulation
+# simulate(world, 10, 'random')
+
+
+# # Example use of the classes
+# world = PDWorld()
+# world.display_world()
+# print(world.agents['red'])
+# world.agents['red'].move('north', world)
+# print(world.agents['red'])
+# world.agents['red'].pickup(world)
+# world.display_world()
