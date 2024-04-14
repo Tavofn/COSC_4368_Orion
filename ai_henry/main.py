@@ -35,7 +35,7 @@ class Agent:
         #     print(f"{self.name} failed to drop off a block at {self.position}. Conditions not met.")
 
 class PDWorld:
-    def __init__(self, randomseed=42):
+    def __init__(self, randomseed=42, Expieriment4 = False):
         self.grid_size = (5, 5)
         # Assuming the grid positions are 0-indexed.
         # Adjust the coordinates if your grid is 1-indexed or follows a different system.
@@ -44,7 +44,10 @@ class PDWorld:
             'blue': Agent((4, 2), 'Blue'),  # Starts on the bottom row, middle column
             'black': Agent((0, 2), 'Black')  # Starts on the top row, middle column
         }
-        self.pickup_cells = {(0, 4): 5, (1, 3): 5, (4, 1): 5}
+        if Expieriment4 == False:
+            self.pickup_cells = {(0, 4): 5, (1, 3): 5, (4, 1): 5}
+        else:
+            self.pickup_cells = {(2, 4): 5, (3, 3): 5, (4, 2): 5}
         self.dropoff_cells = {(0, 0): 0, (2, 0): 0, (3, 4): 0}
         self.randomseed = randomseed
         random.seed(self.randomseed)
@@ -190,10 +193,10 @@ def simulate(world, algorithm, policy, steps):
 
 def simulate2(world, algorithm, policy, steps):
     Actions = ['','','']
-    for step in range(steps):
+    for step in range(steps):                                                                                                                               
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
-            world.__init__()
+            world.__init__()                                                                                                                                                                                                
             Actions = ['','','']
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
@@ -222,7 +225,37 @@ def simulate2(world, algorithm, policy, steps):
 
     # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
 
-    
+def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
+    terminalStateCount = TerminalStates
+    for step in range(steps):
+        if world.check_terminal_state():
+            print(f"Terminal state reached after {step} steps.")
+            terminalStateCount += 1
+            print("TERMINAL STATE COUNT ADDED")
+            print(terminalStateCount)
+            if terminalStateCount < 3:
+                world.__init__()
+            elif terminalStateCount < 6:
+                world.__init__(True)
+            else:
+                return
+        for name, agent in world.agents.items():
+            state = (agent.position, agent.has_block)
+            action = algorithm.select_action(state, policy)
+            if action in ['north', 'south', 'east', 'west']:
+                agent.move(action, world)
+            elif action == 'pickup':
+                agent.pickup(world)
+            elif action == 'dropoff':
+                agent.dropoff(world)
+            next_state = (agent.position, agent.has_block)
+            reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
+            algorithm.update_q_table(state, action, reward, next_state, policy)
+    world.display_world()
+    if not world.check_terminal_state():
+        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
+    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+    return terminalStateCount
 
 def reset_simulation(world, algorithm):
     world.__init__()  # Reinitialize world to reset agent positions and blocks
@@ -236,14 +269,35 @@ algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
-simulate2(world, algorithm, 'PRandom', 500)
+terminalStates = simulate4(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
-simulate2(world, algorithm, 'PGreedy', 8500)
+simulate4(world, algorithm, 'PRandom', 8500, terminalStates)
 print()
 
 
 # reset_simulation(world, algorithm)  # Reset for next experiment
 
+#print("simulation b 500: ")
+#simulate(world, algorithm, 'PRandom', 500)
+#print("simulation b 8500: ")
+#simulate(world, algorithm, 'PGreedy', 8500)
+#print()
+
+
+#reset_simulation(world, algorithm)  # Reset for next experiment
+
+#print("simulation c 500: ")
+#simulate(world, algorithm, 'PRandom', 500)
+#print("simulation c 8500: ")
+#simulate(world, algorithm, 'PExploit', 8500)
+#print()
+
+#world = PDWorld()
+#algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
+#reset_simulation(world, algorithm)  # Reset for next experiment
+
+#print("SARSA simulation:")
+#simulate2(world, algorithm, 'PExploit', 9000)
 # print("simulation b 500: ")
 # simulate(world, algorithm, 'PRandom', 500)
 # print("simulation b 8500: ")
