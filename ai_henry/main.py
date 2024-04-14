@@ -96,32 +96,46 @@ class RLAlgorithm:
         self.discount_factor = discount_factor
         self.actions = actions
      
-    def select_action(self, state, policy):
-       
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2):
-            return random.choice(self.actions)
+    def select_action(self, state, policy, world):
+        position, has_block = state
+        applicable_actions = self.get_applicable_actions(position, has_block, world)
         
-        if policy == 'PExploit' and random.random() < 0.8:
-            best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
-            return best_action if best_action else random.choice(self.actions)
+        if policy == 'PRandom':
+            return random.choice(applicable_actions)
         
-        best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
-        return best_action if best_action else random.choice(self.actions)
+        if policy == 'PExploit':
+            # With probability 0.8, exploit; with probability 0.2, explore
+            if random.random() < 0.8:
+                return self.get_best_action(state, applicable_actions)
+            else:
+                return random.choice(applicable_actions)
         
-        
-        # if policy == 'PRandom':
-        #     return random.choice(self.actions)
+        if policy == 'PGreedy':
+            return self.get_best_action(state, applicable_actions)
 
-        # # For PExploit and PGreedy, first find the best action based on Q-values
-        # best_actions = [action for action in self.actions if self.q_table.get((state, action), 0) == max(self.q_table.get((state, a), 0) for a in self.actions)]
-        # best_action = random.choice(best_actions)  # Break ties randomly
+    def get_best_action(self, state, applicable_actions):
+        # Fetch the best action based on Q-values from applicable actions
+        best_q_value = max(self.q_table.get((state, action), 0) for action in applicable_actions)
+        best_actions = [action for action in applicable_actions if self.q_table.get((state, action), 0) == best_q_value]
+        return random.choice(best_actions)  # Break ties randomly
 
-        # if policy == 'PExploit':
-        #     # 80% exploit, 20% explore
-        #     return best_action if random.random() < 0.8 else random.choice(self.actions)
-        
-        # # If policy is PGreedy or not specified, always exploit
-        # return best_action
+    def get_applicable_actions(self, position, has_block, world):
+        # Determine actions that are actually possible in the current state
+        applicable_actions = []
+        if world.is_dropoff_cell(position) and has_block:
+            applicable_actions.append('dropoff')
+        if world.is_pickup_cell(position) and not has_block:
+            applicable_actions.append('pickup')
+        if world.within_bounds((position[0] - 1, position[1])):  # North
+            applicable_actions.append('north')
+        if world.within_bounds((position[0] + 1, position[1])):  # South
+            applicable_actions.append('south')
+        if world.within_bounds((position[0], position[1] + 1)):  # East
+            applicable_actions.append('east')
+        if world.within_bounds((position[0], position[1] - 1)):  # West
+            applicable_actions.append('west')
+        return applicable_actions
+    
     
     def update_q_table(self, current_state, action, reward, next_state, policy):
         if (current_state, action) not in self.q_table:
@@ -201,10 +215,10 @@ def simulate2(world, algorithm, policy, steps):
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
             if Actions[0] == '':
-                action = algorithm.select_action(state, policy)
+                action = algorithm.select_action(state, policy,world)
             else:
                 action = Actions[0]
-                # print(f"{name} takes action: {action}")
+                print(f"{name} takes action: {action} at {agent.position}")
 
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
@@ -213,7 +227,7 @@ def simulate2(world, algorithm, policy, steps):
             elif action == 'dropoff':
                 agent.dropoff(world)
             next_state = (agent.position, agent.has_block)
-            next_action = algorithm.select_action(next_state, policy)
+            next_action = algorithm.select_action(next_state, policy,world)
             Actions.pop(0)
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
@@ -238,6 +252,7 @@ def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
             elif terminalStateCount < 6:
                 world.__init__(True)
             else:
+                world.display_world()
                 return
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
@@ -254,7 +269,7 @@ def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
     world.display_world()
     if not world.check_terminal_state():
         print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
     return terminalStateCount
 
 def reset_simulation(world, algorithm):
@@ -269,9 +284,9 @@ algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
-terminalStates = simulate4(world, algorithm, 'PRandom', 500)
+simulate2(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
-simulate4(world, algorithm, 'PRandom', 8500, terminalStates)
+simulate2(world, algorithm, 'PGreedy', 8500)
 print()
 
 
