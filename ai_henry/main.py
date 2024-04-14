@@ -159,7 +159,7 @@ def simulate2(world, algorithm, policy, steps):
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
             world.__init__()
-        
+            Actions = ['','','']
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
             if Actions[0] == '':
