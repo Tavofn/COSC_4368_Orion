@@ -241,15 +241,18 @@ def simulate(world, algorithm, policy, steps):
 #experiment 2 sarsa
 def simulate2(world, algorithm, policy, steps):
     Actions = ['','','']
+    terminal_counter = 0
     for step in range(steps):                                                                                                                               
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
+            terminal_counter+=1
+            print(terminal_counter)
             world.__init__()                                                                                                                                                                                                
             Actions = ['','','']
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
             if Actions[0] == '':
-                action = algorithm.select_action(state, policy)
+                action = algorithm.select_action(state, policy,world)
             else:
                 action = Actions[0]
             if action in ['north', 'south', 'east', 'west']:
@@ -259,14 +262,14 @@ def simulate2(world, algorithm, policy, steps):
             elif action == 'dropoff':
                 agent.dropoff(world)
             next_state = (agent.position, agent.has_block)
-            next_action = algorithm.select_action(next_state, policy)
+            next_action = algorithm.select_action(next_state, policy, world)
             Actions.pop(0)
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
           
     world.display_world()
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
 
     # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
     
