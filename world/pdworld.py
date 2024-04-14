@@ -28,8 +28,25 @@ class PDWorld:
                     self.cells.append(Cell(CellType.DROPOFF, (x, y)))
                 else:
                     self.cells.append(Cell(CellType.REGULAR, (x,y)))
-       
-        
+    def expieriment4Changes(self):
+        self.cells = []
+        for x in range (1,6):
+            for y in range (1,6):
+                if x == 2 and y == 4:
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
+                elif x == 3 and y == 3:
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
+                elif x == 4 and y == 2:
+                    self.cells.append(Cell(CellType.PICKUP, (x, y)))
+                elif x == 1 and y == 1:
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
+                elif x == 3 and y == 1:
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
+                elif x == 4 and y == 5:
+                    self.cells.append(Cell(CellType.DROPOFF, (x, y)))
+                else:
+                    self.cells.append(Cell(CellType.REGULAR, (x,y)))
+
     def isInTerminalState(self):
         pickupDone = False
         dropoffDone = False
