@@ -95,7 +95,7 @@ class RLAlgorithm:
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.actions = actions
-     
+    
     def select_action(self, state, policy, world):
         position, has_block = state
         applicable_actions = self.get_applicable_actions(position, has_block, world)
@@ -122,9 +122,9 @@ class RLAlgorithm:
     def get_applicable_actions(self, position, has_block, world):
         # Determine actions that are actually possible in the current state
         applicable_actions = []
-        if world.is_dropoff_cell(position) and has_block:
+        if world.is_dropoff_cell(position) and has_block and world.dropoff_cells[position] < 5:
             applicable_actions.append('dropoff')
-        if world.is_pickup_cell(position) and not has_block:
+        if world.is_pickup_cell(position) and not has_block and world.pickup_cells[position] > 0:
             applicable_actions.append('pickup')
         if world.within_bounds((position[0] - 1, position[1])):  # North
             applicable_actions.append('north')
@@ -143,6 +143,7 @@ class RLAlgorithm:
         next_max = max(self.q_table.get((next_state, a), 0) for a in self.actions)
         self.q_table[(current_state, action)] += self.learning_rate * (reward + self.discount_factor * next_max - self.q_table[(current_state, action)])
         
+
     def print_q_table(self):
         # Print the Q-table in a formatted manner
         print("Q-Table:")
@@ -174,7 +175,6 @@ class Sarsa(RLAlgorithm):
             self.q_table[(current_state, action)] = 0
         target = reward + self.discount_factor * self.q_table.get((next_state, next_action), 0)
         self.q_table[(current_state, action)] += self.learning_rate * (target - self.q_table[(current_state, action)])
-        
     
     def print_q_table(self):
         # Print the Q-table in a formatted manner
@@ -185,11 +185,13 @@ class Sarsa(RLAlgorithm):
 
 def simulate(world, algorithm, policy, steps):
     for step in range(steps):
-        print(f"Step {step+1}:")
+        if world.check_terminal_state():
+            print(f"Terminal state reached after {step} steps.")
+            world.__init__()  
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
+            action = algorithm.select_action(state, policy,world)
             print(f"Current State of {name}: {state}")
-            action = algorithm.select_action(state, policy)
             print(f"{name} takes action: {action}")
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
@@ -200,11 +202,12 @@ def simulate(world, algorithm, policy, steps):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
+    # algorithm.print_q_table()
     world.display_world()
-    if not world.check_terminal_state():
-        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
-
+      # Print the Q-table at the end of the simulation
+    
+    
+#experiment 2 sarsa
 def simulate2(world, algorithm, policy, steps):
     Actions = ['','','']
     for step in range(steps):                                                                                                                               
@@ -218,8 +221,6 @@ def simulate2(world, algorithm, policy, steps):
                 action = algorithm.select_action(state, policy,world)
             else:
                 action = Actions[0]
-                print(f"{name} takes action: {action} at {agent.position}")
-
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
             elif action == 'pickup':
@@ -231,14 +232,13 @@ def simulate2(world, algorithm, policy, steps):
             Actions.pop(0)
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
-            if(isinstance(algorithm, Sarsa)):
-                algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
-            else:
-                algorithm.update_q_table(state, action, reward, next_state, policy)
+            algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
+          
     world.display_world()
 
     # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
-
+    
+#experiment 4
 def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
     terminalStateCount = TerminalStates
     for step in range(steps):
@@ -284,9 +284,9 @@ algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
-simulate2(world, algorithm, 'PRandom', 500)
+simulate(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
-simulate2(world, algorithm, 'PGreedy', 8500)
+simulate(world, algorithm, 'PGreedy', 10100)
 print()
 
 
