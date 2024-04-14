@@ -1,4 +1,3 @@
-import numpy as np
 import random
 
 class Agent:
@@ -82,14 +81,16 @@ class PDWorld:
         
 
 class RLAlgorithm:
-    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1):
+    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1, randomseed=42):
         self.q_table = {}
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.actions = actions
         self.epsilon = epsilon  # Exploration rate
+        self.randomseed = randomseed
         
     def select_action(self, state, policy):
+        random.seed(self.randomseed)
         if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
             return random.choice(self.actions)
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
@@ -109,8 +110,17 @@ class RLAlgorithm:
             print(f"State {state}, Action {action}: {value:.2f}")
 
 class Sarsa(RLAlgorithm):
-    
+    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1, randomseed=42):
+        self.q_table = {}
+        self.learning_rate = learning_rate
+        self.discount_factor = discount_factor
+        self.actions = actions
+        self.epsilon = epsilon  # Exploration rate
+        self.randomseed = randomseed
+        
     def select_action(self, state, policy):
+        random.seed(self.randomseed)
+
         if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
             return random.choice(self.actions)
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
@@ -132,14 +142,31 @@ class Sarsa(RLAlgorithm):
             print(f"State {state}, Action {action}: {value:.2f}")
 
 def simulate(world, algorithm, policy, steps):
-    for step in range(steps):
-        if world.check_terminal_state():
-            print(f"Terminal state reached after {step} steps.")
-            world.__init__()
+    # for step in range(steps):
+    #     if world.check_terminal_state():
+    #         print(f"Terminal state reached after {step} steps.")
+    #         world.__init__()
         
+    #     for name, agent in world.agents.items():
+    #         state = (agent.position, agent.has_block)
+    #         action = algorithm.select_action(state, policy)
+    #         if action in ['north', 'south', 'east', 'west']:
+    #             agent.move(action, world)
+    #         elif action == 'pickup':
+    #             agent.pickup(world)
+    #         elif action == 'dropoff':
+    #             agent.dropoff(world)
+    #         next_state = (agent.position, agent.has_block)
+    #         reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
+    #         algorithm.update_q_table(state, action, reward, next_state, policy)
+    # world.display_world()
+    for step in range(steps):
+        print(f"Step {step+1}:")
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
+            print(f"Current State of {name}: {state}")
             action = algorithm.select_action(state, policy)
+            print(f"{name} takes action: {action}")
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
             elif action == 'pickup':
@@ -149,7 +176,11 @@ def simulate(world, algorithm, policy, steps):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
-    world.display_world()
+            print(f"New State of {name}: {next_state}, Reward: {reward}")
+        world.display_world()
+        if world.check_terminal_state():
+            print("Terminal state reached.")
+            break
     
 def reset_simulation(world, algorithm):
     world.__init__()  # Reinitialize world to reset agent positions and blocks
@@ -169,27 +200,27 @@ simulate(world, algorithm, 'PRandom', 8500)
 print()
 
 
-reset_simulation(world, algorithm)  # Reset for next experiment
+# reset_simulation(world, algorithm)  # Reset for next experiment
 
-print("simulation b 500: ")
-simulate(world, algorithm, 'PRandom', 500)
-print("simulation b 8500: ")
-simulate(world, algorithm, 'PGreedy', 8500)
-print()
+# print("simulation b 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation b 8500: ")
+# simulate(world, algorithm, 'PGreedy', 8500)
+# print()
 
 
-reset_simulation(world, algorithm)  # Reset for next experiment
+# reset_simulation(world, algorithm)  # Reset for next experiment
 
-print("simulation c 500: ")
-simulate(world, algorithm, 'PRandom', 500)
-print("simulation c 8500: ")
-simulate(world, algorithm, 'PExploit', 8500)
-print()
+# print("simulation c 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation c 8500: ")
+# simulate(world, algorithm, 'PExploit', 8500)
+# print()
 
-world = PDWorld()
-algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
-reset_simulation(world, algorithm)  # Reset for next experiment
+# world = PDWorld()
+# algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
+# reset_simulation(world, algorithm)  # Reset for next experiment
 
-print("SARSA simulation:")
-simulate(world, algorithm, 'PExploit', 9000)
+# print("SARSA simulation:")
+# simulate(world, algorithm, 'PExploit', 9000)
 
