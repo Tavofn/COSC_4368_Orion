@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 #import numpy as np
+=======
+>>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
 import random
 
 class Agent:
@@ -32,7 +35,11 @@ class Agent:
             print(f"{self.name} dropped off a block at {self.position}.")
 
 class PDWorld:
+<<<<<<< HEAD
     def __init__(self, Expieriment4 = False):
+=======
+    def __init__(self, randomseed=42):
+>>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
         self.grid_size = (5, 5)
         # Assuming the grid positions are 0-indexed.
         # Adjust the coordinates if your grid is 1-indexed or follows a different system.
@@ -46,6 +53,8 @@ class PDWorld:
         else:
             self.pickup_cells = {(2, 4): 5, (3, 3): 5, (4, 2): 5}
         self.dropoff_cells = {(0, 0): 0, (2, 0): 0, (3, 4): 0}
+        self.randomseed = randomseed
+        random.seed(self.randomseed)
     
     def is_occupied(self, position, current_agent):
         # Check all agents to see if any occupy the given position
@@ -91,10 +100,17 @@ class RLAlgorithm:
         self.discount_factor = discount_factor
         self.actions = actions
         self.epsilon = epsilon  # Exploration rate
+    
         
     def select_action(self, state, policy):
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
+       
+        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2):
             return random.choice(self.actions)
+        
+        if policy == 'PExploit' and random.random() < 0.8:
+            best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
+            return best_action if best_action else random.choice(self.actions)
+        
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
     
@@ -112,10 +128,21 @@ class RLAlgorithm:
             print(f"State {state}, Action {action}: {value:.2f}")
 
 class Sarsa(RLAlgorithm):
-    
+    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1):
+        self.q_table = {}
+        self.learning_rate = learning_rate
+        self.discount_factor = discount_factor
+        self.actions = actions
+        self.epsilon = epsilon  # Exploration rate
+        
     def select_action(self, state, policy):
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
+        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2):
             return random.choice(self.actions)
+        
+        if policy == 'PExploit' and random.random() < 0.8:
+            best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
+            return best_action if best_action else random.choice(self.actions)
+        
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
     
@@ -135,13 +162,12 @@ class Sarsa(RLAlgorithm):
 
 def simulate(world, algorithm, policy, steps):
     for step in range(steps):
-        if world.check_terminal_state():
-            print(f"Terminal state reached after {step} steps.")
-            world.__init__()
-        
+        print(f"Step {step+1}:")
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
+            print(f"Current State of {name}: {state}")
             action = algorithm.select_action(state, policy)
+            print(f"{name} takes action: {action}")
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
             elif action == 'pickup':
@@ -182,9 +208,8 @@ def simulate2(world, algorithm, policy, steps):
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
     world.display_world()
-    if not world.check_terminal_state():
-        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+
+    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
 
 def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
     terminalStateCount = TerminalStates
@@ -225,19 +250,26 @@ def reset_simulation(world, algorithm):
         
 
 # Initialize the world and run the simulation
-world = PDWorld()
-algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+world = PDWorld(42)
+algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
+<<<<<<< HEAD
 terminalStates = simulate4(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
 simulate4(world, algorithm, 'PRandom', 8500, terminalStates)
+=======
+simulate2(world, algorithm, 'PRandom', 500)
+print("simulation a 8500: ")
+simulate2(world, algorithm, 'PGreedy', 8500)
+>>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
 print()
 
 
-reset_simulation(world, algorithm)  # Reset for next experiment
+# reset_simulation(world, algorithm)  # Reset for next experiment
 
+<<<<<<< HEAD
 #print("simulation b 500: ")
 #simulate(world, algorithm, 'PRandom', 500)
 #print("simulation b 8500: ")
@@ -259,4 +291,27 @@ reset_simulation(world, algorithm)  # Reset for next experiment
 
 #print("SARSA simulation:")
 #simulate2(world, algorithm, 'PExploit', 9000)
+=======
+# print("simulation b 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation b 8500: ")
+# simulate(world, algorithm, 'PGreedy', 8500)
+# print()
+
+
+# reset_simulation(world, algorithm)  # Reset for next experiment
+
+# print("simulation c 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation c 8500: ")
+# simulate(world, algorithm, 'PExploit', 8500)
+# print()
+
+# world = PDWorld()
+# algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
+# reset_simulation(world, algorithm)  # Reset for next experiment
+
+# print("SARSA simulation:")
+# simulate2(world, algorithm, 'PExploit', 9000)
+>>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
 
