@@ -140,6 +140,7 @@ class RLAlgorithm:
     def update_q_table(self, current_state, action, reward, next_state, policy):
         if (current_state, action) not in self.q_table:
             self.q_table[(current_state, action)] = 0
+        
         next_max = max(self.q_table.get((next_state, a), 0) for a in self.actions)
         self.q_table[(current_state, action)] += self.learning_rate * (reward + self.discount_factor * next_max - self.q_table[(current_state, action)])
         
@@ -191,8 +192,8 @@ def simulate(world, algorithm, policy, steps):
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
             action = algorithm.select_action(state, policy,world)
-            print(f"Current State of {name}: {state}")
-            print(f"{name} takes action: {action}")
+            # print(f"Current State of {name}: {state}")
+            # print(f"{name} takes action: {action}")
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
             elif action == 'pickup':
@@ -218,7 +219,7 @@ def simulate2(world, algorithm, policy, steps):
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
             if Actions[0] == '':
-                action = algorithm.select_action(state, policy,world)
+                action = algorithm.select_action(state, policy)
             else:
                 action = Actions[0]
             if action in ['north', 'south', 'east', 'west']:
@@ -228,7 +229,7 @@ def simulate2(world, algorithm, policy, steps):
             elif action == 'dropoff':
                 agent.dropoff(world)
             next_state = (agent.position, agent.has_block)
-            next_action = algorithm.select_action(next_state, policy,world)
+            next_action = algorithm.select_action(next_state, policy)
             Actions.pop(0)
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
@@ -279,6 +280,8 @@ def reset_simulation(world, algorithm):
         
 
 # Initialize the world and run the simulation
+
+#Experiment 1.c
 world = PDWorld(42)
 algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
@@ -286,7 +289,7 @@ world.display_world()
 print("simulation a 500: ")
 simulate(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
-simulate(world, algorithm, 'PGreedy', 10100)
+simulate(world, algorithm, 'PExploit', 8500)
 print()
 
 
