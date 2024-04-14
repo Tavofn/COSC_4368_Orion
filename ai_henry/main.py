@@ -31,7 +31,7 @@ class Agent:
             print(f"{self.name} dropped off a block at {self.position}.")
 
 class PDWorld:
-    def __init__(self):
+    def __init__(self, randomseed=42):
         self.grid_size = (5, 5)
         # Assuming the grid positions are 0-indexed.
         # Adjust the coordinates if your grid is 1-indexed or follows a different system.
@@ -42,6 +42,8 @@ class PDWorld:
         }
         self.pickup_cells = {(0, 4): 5, (1, 3): 5, (4, 1): 5}
         self.dropoff_cells = {(0, 0): 0, (2, 0): 0, (3, 4): 0}
+        self.randomseed = randomseed
+        random.seed(self.randomseed)
     
     def is_occupied(self, position, current_agent):
         # Check all agents to see if any occupy the given position
@@ -81,18 +83,23 @@ class PDWorld:
         
 
 class RLAlgorithm:
-    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1, randomseed=42):
+    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1):
         self.q_table = {}
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.actions = actions
         self.epsilon = epsilon  # Exploration rate
-        self.randomseed = randomseed
+    
         
     def select_action(self, state, policy):
-        random.seed(self.randomseed)
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
+       
+        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2):
             return random.choice(self.actions)
+        
+        if policy == 'PExploit' and random.random() < 0.8:
+            best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
+            return best_action if best_action else random.choice(self.actions)
+        
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
     
@@ -110,19 +117,21 @@ class RLAlgorithm:
             print(f"State {state}, Action {action}: {value:.2f}")
 
 class Sarsa(RLAlgorithm):
-    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1, randomseed=42):
+    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1):
         self.q_table = {}
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.actions = actions
         self.epsilon = epsilon  # Exploration rate
-        self.randomseed = randomseed
         
     def select_action(self, state, policy):
-        random.seed(self.randomseed)
-
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
+        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2):
             return random.choice(self.actions)
+        
+        if policy == 'PExploit' and random.random() < 0.8:
+            best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
+            return best_action if best_action else random.choice(self.actions)
+        
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
     
@@ -188,9 +197,8 @@ def simulate2(world, algorithm, policy, steps):
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
     world.display_world()
-    if not world.check_terminal_state():
-        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+
+    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
 
     
 
@@ -201,14 +209,14 @@ def reset_simulation(world, algorithm):
         
 
 # Initialize the world and run the simulation
-world = PDWorld()
-algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+world = PDWorld(42)
+algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
-simulate(world, algorithm, 'PRandom', 500)
+simulate2(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
-simulate(world, algorithm, 'PRandom', 8500)
+simulate2(world, algorithm, 'PGreedy', 8500)
 print()
 
 
@@ -233,6 +241,6 @@ print()
 # algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
 # reset_simulation(world, algorithm)  # Reset for next experiment
 
-print("SARSA simulation:")
-simulate2(world, algorithm, 'PExploit', 9000)
+# print("SARSA simulation:")
+# simulate2(world, algorithm, 'PExploit', 9000)
 
