@@ -134,7 +134,7 @@ def simulate(world, algorithm, policy, steps):
     for step in range(steps):
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
-            break
+            world.__init__()
         
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
@@ -152,37 +152,7 @@ def simulate(world, algorithm, policy, steps):
     if not world.check_terminal_state():
         print(f"Simulation ended without reaching the terminal state after {steps} steps.")
     algorithm.print_q_table()  # Print the Q-table at the end of the simulation
-
-def simulate2(world, algorithm, policy, steps):
-    Actions = ['','','']
-    for step in range(steps):
-        if world.check_terminal_state():
-            print(f"Terminal state reached after {step} steps.")
-            break
-        
-        for name, agent in world.agents.items():
-            state = (agent.position, agent.has_block)
-            if Actions[0] == '':
-                action = algorithm.select_action(state, policy)
-            else:
-                action = Actions[0]
-            if action in ['north', 'south', 'east', 'west']:
-                agent.move(action, world)
-            elif action == 'pickup':
-                agent.pickup(world)
-            elif action == 'dropoff':
-                agent.dropoff(world)
-            next_state = (agent.position, agent.has_block)
-            next_action = algorithm.select_action(state, policy)
-            Actions.pop(0)
-            Actions.append(next_action)
-            reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
-            algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
-    world.display_world()
-    if not world.check_terminal_state():
-        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
-
+    
 def reset_simulation(world, algorithm):
     world.__init__()  # Reinitialize world to reset agent positions and blocks
     algorithm.q_table.clear()  # Clear Q-table for a fresh start in learning
