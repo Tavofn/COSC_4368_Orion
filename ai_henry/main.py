@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+
 class Agent:
     def __init__(self, start_position, name):
         self.position = start_position
@@ -10,7 +11,8 @@ class Agent:
     def move(self, direction, world):
         moves = {'north': (-1, 0), 'south': (1, 0), 'east': (0, 1), 'west': (0, -1)}
         new_position = (self.position[0] + moves[direction][0], self.position[1] + moves[direction][1])
-        if world.within_bounds(new_position) and new_position not in [agent.position for agent in world.agents.values()]:
+        if world.within_bounds(new_position) and new_position not in [agent.position for agent in
+                                                                      world.agents.values()]:
             self.position = new_position
 
     def pickup(self, world):
@@ -25,6 +27,7 @@ class Agent:
             world.dropoff_cells[self.position] += 1
             print(f"{self.name} dropped off a block at {self.position}.")
 
+
 class PDWorld:
     def __init__(self):
         self.grid_size = (5, 5)
@@ -38,13 +41,12 @@ class PDWorld:
         self.pickup_cells = {(0, 4): 5, (1, 3): 5, (4, 1): 5}
         self.dropoff_cells = {(0, 0): 0, (2, 0): 0, (3, 4): 0}
 
-
     def is_dropoff_cell(self, position):
         return position in self.dropoff_cells
-    
+
     def is_pickup_cell(self, position):
         return position in self.pickup_cells
-    
+
     def within_bounds(self, position):
         x, y = position
         return 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]
@@ -59,27 +61,40 @@ class PDWorld:
             grid[agent.position[0]][agent.position[1]] = agent.name[0] + ('(B)' if agent.has_block else '')
         print('\n'.join(' '.join(row) for row in grid))
         print()
-        
+
 
 class RLAlgorithm:
-    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1):
+    def __init__(self, learning_rate=0.1, discount_factor=0.9,
+                 actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'], epsilon=0.1):
         self.q_table = {}
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.actions = actions
         self.epsilon = epsilon  # Exploration rate
-        
+
     def select_action(self, state, policy):
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
+        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (
+                policy == 'PGreedy' and random.random() < self.epsilon):
             return random.choice(self.actions)
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
-    
+
     def update_q_table(self, current_state, action, reward, next_state, policy):
         if (current_state, action) not in self.q_table:
             self.q_table[(current_state, action)] = 0
         next_max = max(self.q_table.get((next_state, a), 0) for a in self.actions)
-        self.q_table[(current_state, action)] += self.learning_rate * (reward + self.discount_factor * next_max - self.q_table[(current_state, action)])
+        self.q_table[(current_state, action)] += self.learning_rate * (
+                reward + self.discount_factor * next_max - self.q_table[(current_state, action)])
+
+
+class Sarsa(RLAlgorithm):
+    def update_q_table(self, current_state, action, reward, next_state, policy):
+        if (current_state, action) not in self.q_table:
+            self.q_table[(current_state, action)] = 0
+        next_action = self.select_action(next_state, policy)
+        target = reward + self.discount_factor * self.q_table.get((next_state, next_action), 0)
+        self.q_table[(current_state, action)] += self.learning_rate * (target - self.q_table[(current_state, action)])
+
 
 def simulate(world, algorithm, policy, steps):
     for step in range(steps):
@@ -95,34 +110,59 @@ def simulate(world, algorithm, policy, steps):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
-    
+
     world.display_world()
-        
+
 
 # Initialize the world and run the simulation
+# world = PDWorld()
+# algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+# print("initial world: ")
+# world.display_world()
+# print("simulation a 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation a 8500: ")
+# simulate(world, algorithm, 'PRandom', 8500)
+# print()
+#
+#
+# world = PDWorld()
+#
+# print("simulation b 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation b 8500: ")
+# simulate(world, algorithm, 'PGreedy', 8500)
+# print()
+#
+#
+# world = PDWorld()
+#
+# print("simulation c 500: ")
+# simulate(world, algorithm, 'PRandom', 500)
+# print("simulation c 8500: ")
+# simulate(world, algorithm, 'PExploit', 8500)
+# print()
+
+
 world = PDWorld()
-algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+newAlgorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
-print("simulation a 500: ")
-simulate(world, algorithm, 'PRandom', 500)
-print("simulation a 8500: ")
-simulate(world, algorithm, 'PRandom', 8500)
-print()
-
+print('Sarsa simulation for 500:\n')
+simulate(world, newAlgorithm, 'PRandom', 500)
+print('Sarsa simulation for 8500:\n')
+simulate(world, newAlgorithm, 'PExploit', 8500)
 
 world = PDWorld()
 
-print("simulation b 500: ")
-simulate(world, algorithm, 'PRandom', 500)
-print("simulation b 8500: ")
-simulate(world, algorithm, 'PGreedy', 8500)
-print()
-
+print('Sarsa simulation for 500:\n')
+simulate(world, newAlgorithm, 'PRandom', 500)
+print('Sarsa simulation for 8500:\n')
+simulate(world, newAlgorithm, 'PGreedy', 8500)
 
 world = PDWorld()
 
-print("simulation c 500: ")
-simulate(world, algorithm, 'PRandom', 500)
-print("simulation c 8500: ")
-simulate(world, algorithm, 'PExploit', 8500)
+print('Sarsa simulation for 500:\n')
+simulate(world, newAlgorithm, 'PRandom', 500)
+print('Sarsa simulation for 8500:\n')
+simulate(world, newAlgorithm, 'PRandom', 8500)

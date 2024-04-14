@@ -106,7 +106,7 @@ class QLearning(RLAlgorithm):
         )
 
 class SARSA(RLAlgorithm):
-    def update_q_table(self, current_state, action, reward, next_state, next_action):
+    def update_q_table(self, current_state, action, reward, next_state, next_action=None):
         # SARSA update rule
         if (current_state, action) not in self.q_table:
             self.q_table[(current_state, action)] = 0  # Initialize if not present
