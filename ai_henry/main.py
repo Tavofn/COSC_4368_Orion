@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-#import numpy as np
-=======
->>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
 import random
 
 class Agent:
@@ -35,11 +31,7 @@ class Agent:
             print(f"{self.name} dropped off a block at {self.position}.")
 
 class PDWorld:
-<<<<<<< HEAD
-    def __init__(self, Expieriment4 = False):
-=======
-    def __init__(self, randomseed=42):
->>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
+    def __init__(self, randomseed=42, Expieriment4 = False):
         self.grid_size = (5, 5)
         # Assuming the grid positions are 0-indexed.
         # Adjust the coordinates if your grid is 1-indexed or follows a different system.
@@ -251,25 +243,18 @@ def reset_simulation(world, algorithm):
 
 # Initialize the world and run the simulation
 world = PDWorld(42)
-algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
+algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
-<<<<<<< HEAD
 terminalStates = simulate4(world, algorithm, 'PRandom', 500)
 print("simulation a 8500: ")
 simulate4(world, algorithm, 'PRandom', 8500, terminalStates)
-=======
-simulate2(world, algorithm, 'PRandom', 500)
-print("simulation a 8500: ")
-simulate2(world, algorithm, 'PGreedy', 8500)
->>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
 print()
 
 
 # reset_simulation(world, algorithm)  # Reset for next experiment
 
-<<<<<<< HEAD
 #print("simulation b 500: ")
 #simulate(world, algorithm, 'PRandom', 500)
 #print("simulation b 8500: ")
@@ -291,7 +276,6 @@ print()
 
 #print("SARSA simulation:")
 #simulate2(world, algorithm, 'PExploit', 9000)
-=======
 # print("simulation b 500: ")
 # simulate(world, algorithm, 'PRandom', 500)
 # print("simulation b 8500: ")
@@ -313,5 +297,4 @@ print()
 
 # print("SARSA simulation:")
 # simulate2(world, algorithm, 'PExploit', 9000)
->>>>>>> 2ee01fd3cb6e09730f68b72e2e84a45681e3ba14
 
