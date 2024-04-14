@@ -135,7 +135,7 @@ def simulate(world, algorithm, policy, steps):
     for step in range(steps):
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
-            break
+            world.__init__()
         
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
@@ -150,9 +150,6 @@ def simulate(world, algorithm, policy, steps):
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
     world.display_world()
-    if not world.check_terminal_state():
-        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
     
 def reset_simulation(world, algorithm):
     world.__init__()  # Reinitialize world to reset agent positions and blocks
