@@ -17,12 +17,13 @@ class Agent:
         if world.is_pickup_cell(self.position) and world.pickup_cells[self.position] > 0 and not self.has_block:
             self.has_block = True
             world.pickup_cells[self.position] -= 1
+            print(f"{self.name} picked up a block at {self.position}.")
 
     def dropoff(self, world):
-        # Only proceed if it's a valid dropoff cell and other conditions are met
         if world.is_dropoff_cell(self.position) and world.dropoff_cells[self.position] < 5 and self.has_block:
             self.has_block = False
             world.dropoff_cells[self.position] += 1
+            print(f"{self.name} dropped off a block at {self.position}.")
 
 class PDWorld:
     def __init__(self):
@@ -51,40 +52,29 @@ class PDWorld:
     def display_world(self):
         grid = [['.' for _ in range(self.grid_size[1])] for _ in range(self.grid_size[0])]
         for pos, blocks in self.pickup_cells.items():
-            if blocks > 0:
-                grid[pos[0]][pos[1]] = 'P' + str(blocks)  # Display pickup cells with block count
-            else:
-                grid[pos[0]][pos[1]] = '.'  # Clear the cell if no blocks are available
+            grid[pos[0]][pos[1]] = 'P' + str(blocks)
         for pos, blocks in self.dropoff_cells.items():
-            if blocks < 5:
-                grid[pos[0]][pos[1]] = 'D' + str(blocks)  # Display dropoff cells with current block count
-            else:
-                grid[pos[0]][pos[1]] = 'D5'  # Show that the dropoff is at capacity
+            grid[pos[0]][pos[1]] = 'D' + str(blocks)
         for agent in self.agents.values():
-            # Ensure that agents are displayed above blocks status
-            if agent.name == "Black":
-                grid[agent.position[0]][agent.position[1]] = "Ba"
-            elif agent.name == "Blue":
-                grid[agent.position[0]][agent.position[1]] = "Bu"
-            else:
-                grid[agent.position[0]][agent.position[1]] = agent.name[0]       
+            grid[agent.position[0]][agent.position[1]] = agent.name[0] + ('(B)' if agent.has_block else '')
         print('\n'.join(' '.join(row) for row in grid))
-        print()  
+        print()
         
 
 class RLAlgorithm:
-    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff']):
+    def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff'],epsilon=0.1):
         self.q_table = {}
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
         self.actions = actions
-
+        self.epsilon = epsilon  # Exploration rate
+        
     def select_action(self, state, policy):
-        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2):
+        if policy == 'PRandom' or (policy == 'PExploit' and random.random() < 0.2) or (policy == 'PGreedy' and random.random() < self.epsilon):
             return random.choice(self.actions)
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
-
+    
     def update_q_table(self, current_state, action, reward, next_state, policy):
         if (current_state, action) not in self.q_table:
             self.q_table[(current_state, action)] = 0
@@ -105,13 +95,34 @@ def simulate(world, algorithm, policy, steps):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
-        world.display_world()
+    
+    world.display_world()
         
 
 # Initialize the world and run the simulation
 world = PDWorld()
-algorithm = RLAlgorithm(learning_rate=0.1, discount_factor=0.9)
+algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
-print("simulation: ")
-simulate(world, algorithm, 'PExploit', 10)
+print("simulation a 500: ")
+simulate(world, algorithm, 'PRandom', 500)
+print("simulation a 8500: ")
+simulate(world, algorithm, 'PRandom', 8500)
+print()
+
+
+world = PDWorld()
+
+print("simulation b 500: ")
+simulate(world, algorithm, 'PRandom', 500)
+print("simulation b 8500: ")
+simulate(world, algorithm, 'PGreedy', 8500)
+print()
+
+
+world = PDWorld()
+
+print("simulation c 500: ")
+simulate(world, algorithm, 'PRandom', 500)
+print("simulation c 8500: ")
+simulate(world, algorithm, 'PExploit', 8500)

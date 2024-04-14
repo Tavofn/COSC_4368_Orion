@@ -209,7 +209,11 @@ def simulate(world, num_steps, policy):
         world.display_world()
 
 # Run simulations with different policies
+
 world = PDWorld()  # Reset world
+print("initial world: ")
+world.display_world()
+
 print("Running simulation with Exploitative Policy:")
 simulate(world, 10, 'exploitative')
 world = PDWorld()  # Reset world for a clean start
