@@ -126,10 +126,9 @@ class Sarsa(RLAlgorithm):
         best_action = max(self.actions, key=lambda action: self.q_table.get((state, action), 0))
         return best_action if best_action else random.choice(self.actions)
     
-    def update_q_table(self, current_state, action, reward, next_state, policy):
+    def update_q_table(self, current_state, action, reward, next_state, next_action, policy):
         if (current_state, action) not in self.q_table:
             self.q_table[(current_state, action)] = 0
-        next_action = self.select_action(next_state, policy)
         target = reward + self.discount_factor * self.q_table.get((next_state, next_action), 0)
         self.q_table[(current_state, action)] += self.learning_rate * (target - self.q_table[(current_state, action)])
         
@@ -142,24 +141,6 @@ class Sarsa(RLAlgorithm):
             print(f"State {state}, Action {action}: {value:.2f}")
 
 def simulate(world, algorithm, policy, steps):
-    # for step in range(steps):
-    #     if world.check_terminal_state():
-    #         print(f"Terminal state reached after {step} steps.")
-    #         world.__init__()
-        
-    #     for name, agent in world.agents.items():
-    #         state = (agent.position, agent.has_block)
-    #         action = algorithm.select_action(state, policy)
-    #         if action in ['north', 'south', 'east', 'west']:
-    #             agent.move(action, world)
-    #         elif action == 'pickup':
-    #             agent.pickup(world)
-    #         elif action == 'dropoff':
-    #             agent.dropoff(world)
-    #         next_state = (agent.position, agent.has_block)
-    #         reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
-    #         algorithm.update_q_table(state, action, reward, next_state, policy)
-    # world.display_world()
     for step in range(steps):
         print(f"Step {step+1}:")
         for name, agent in world.agents.items():
@@ -176,12 +157,43 @@ def simulate(world, algorithm, policy, steps):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
-            print(f"New State of {name}: {next_state}, Reward: {reward}")
-        world.display_world()
+    world.display_world()
+    if not world.check_terminal_state():
+        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
+    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+
+def simulate2(world, algorithm, policy, steps):
+    Actions = ['','','']
+    for step in range(steps):
         if world.check_terminal_state():
-            print("Terminal state reached.")
-            break
+            print(f"Terminal state reached after {step} steps.")
+            world.__init__()
+            Actions = ['','','']
+        for name, agent in world.agents.items():
+            state = (agent.position, agent.has_block)
+            if Actions[0] == '':
+                action = algorithm.select_action(state, policy)
+            else:
+                action = Actions[0]
+            if action in ['north', 'south', 'east', 'west']:
+                agent.move(action, world)
+            elif action == 'pickup':
+                agent.pickup(world)
+            elif action == 'dropoff':
+                agent.dropoff(world)
+            next_state = (agent.position, agent.has_block)
+            next_action = algorithm.select_action(next_state, policy)
+            Actions.pop(0)
+            Actions.append(next_action)
+            reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
+            algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
+    world.display_world()
+    if not world.check_terminal_state():
+        print(f"Simulation ended without reaching the terminal state after {steps} steps.")
+    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+
     
+
 def reset_simulation(world, algorithm):
     world.__init__()  # Reinitialize world to reset agent positions and blocks
     algorithm.q_table.clear()  # Clear Q-table for a fresh start in learning
@@ -221,6 +233,6 @@ print()
 # algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
 # reset_simulation(world, algorithm)  # Reset for next experiment
 
-# print("SARSA simulation:")
-# simulate(world, algorithm, 'PExploit', 9000)
+print("SARSA simulation:")
+simulate2(world, algorithm, 'PExploit', 9000)
 
