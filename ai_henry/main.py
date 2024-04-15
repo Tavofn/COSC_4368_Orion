@@ -22,7 +22,7 @@ class Agent:
         if world.is_pickup_cell(self.position) and world.pickup_cells[self.position] > 0 and not self.has_block:
             self.has_block = True
             world.pickup_cells[self.position] -= 1
-            print(f"{self.name} picked up a block at {self.position}.")
+            # print(f"{self.name} picked up a block at {self.position}.")
         # else:
         #     print(f"{self.name} failed to pick up a block at {self.position}. Conditions not met.")
     
@@ -30,12 +30,12 @@ class Agent:
         if world.is_dropoff_cell(self.position) and world.dropoff_cells[self.position] < 5 and self.has_block:
             self.has_block = False
             world.dropoff_cells[self.position] += 1
-            print(f"{self.name} dropped off a block at {self.position}.")
+            # print(f"{self.name} dropped off a block at {self.position}.")
         # else:
         #     print(f"{self.name} failed to drop off a block at {self.position}. Conditions not met.")
 
 class PDWorld:
-    def __init__(self, randomseed=42, Expieriment4 = False):
+    def __init__(self, randomseed, experiment4 = False):
         self.grid_size = (5, 5)
         # Assuming the grid positions are 0-indexed.
         # Adjust the coordinates if your grid is 1-indexed or follows a different system.
@@ -44,10 +44,14 @@ class PDWorld:
             'blue': Agent((4, 2), 'Blue'),  # Starts on the bottom row, middle column
             'black': Agent((0, 2), 'Black')  # Starts on the top row, middle column
         }
-        if Expieriment4 == False:
+        self.experiment4 = experiment4
+        if self.experiment4 == False:
+
             self.pickup_cells = {(0, 4): 5, (1, 3): 5, (4, 1): 5}
         else:
+            print("changed pickup positions")
             self.pickup_cells = {(2, 4): 5, (3, 3): 5, (4, 2): 5}
+            
         self.dropoff_cells = {(0, 0): 0, (2, 0): 0, (3, 4): 0}
         self.randomseed = randomseed
         random.seed(self.randomseed)
@@ -214,11 +218,11 @@ class Sarsa(RLAlgorithm):
             state, action = key
             print(f"State {state}, Action {action}: {value:.2f}")
 
-def simulate(world, algorithm, policy, steps):
+def simulate(world, algorithm, policy, steps,randomseed):
     for step in range(steps):
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
-            world.__init__()  
+            world.__init__(randomseed=randomseed)  
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
             action = algorithm.select_action(state, policy,world)
@@ -239,7 +243,7 @@ def simulate(world, algorithm, policy, steps):
     
     
 #experiment 2 sarsa
-def simulate2(world, algorithm, policy, steps):
+def simulate2(world, algorithm, policy, steps, randomseed):
     Actions = ['','','']
     terminal_counter = 0
     for step in range(steps):                                                                                                                               
@@ -247,7 +251,7 @@ def simulate2(world, algorithm, policy, steps):
             print(f"Terminal state reached after {step} steps.")
             terminal_counter+=1
             print(terminal_counter)
-            world.__init__()                                                                                                                                                                                                
+            world.__init__(randomseed=randomseed)                                                                                                                                                                                                
             Actions = ['','','']
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
@@ -274,7 +278,7 @@ def simulate2(world, algorithm, policy, steps):
     # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
     
 #experiment 4
-def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
+def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates = 0):
     terminalStateCount = TerminalStates
     for step in range(steps):
         if world.check_terminal_state():
@@ -283,15 +287,15 @@ def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
             print("TERMINAL STATE COUNT ADDED")
             print(terminalStateCount)
             if terminalStateCount < 3:
-                world.__init__()
+                world.__init__(randomseed=randomseed)
             elif terminalStateCount < 6:
-                world.__init__(True)
+                world.__init__(randomseed=randomseed, experiment4=True)
             else:
                 world.display_world()
                 return
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
-            action = algorithm.select_action(state, policy)
+            action = algorithm.select_action(state, policy, world)
             if action in ['north', 'south', 'east', 'west']:
                 agent.move(action, world)
             elif action == 'pickup':
@@ -304,7 +308,7 @@ def simulate4(world, algorithm, policy, steps, TerminalStates = 0):
     world.display_world()
     if not world.check_terminal_state():
         print(f"Simulation ended without reaching the terminal state after {steps} steps.")
-    algorithm.print_q_table()  # Print the Q-table at the end of the simulation
+    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
     return terminalStateCount
 
 def reset_simulation(world, algorithm):
@@ -327,16 +331,39 @@ def reset_simulation(world, algorithm):
 # print()
 
 #Experiment 2
-world = PDWorld(42)
-algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
+# world = PDWorld(randomseed=42)
+# algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
+# print("initial world: ")
+# world.display_world()
+# print("simulation a 500: ")
+# simulate2(world, algorithm, 'PRandom', 500, randomseed=42)
+# print("simulation a 8500: ")
+# simulate2(world, algorithm, 'PExploit', 8500, randomseed=42)
+# print()
+
+#Experiment 3 using sarsa
+randomseed = 42
+world = PDWorld(randomseed)
+algorithm = Sarsa(learning_rate=0.45, discount_factor=0.5)
 print("initial world: ")
 world.display_world()
 print("simulation a 500: ")
-simulate2(world, algorithm, 'PRandom', 500)
+simulate2(world, algorithm, 'PRandom', 500,randomseed=randomseed)
 print("simulation a 8500: ")
-simulate2(world, algorithm, 'PExploit', 8500)
+simulate2(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
 print()
 
+#Experiment 4
+# randomseed = 42
+# world = PDWorld(randomseed=randomseed)
+# algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+# print("initial world: ")
+# world.display_world()
+# print("simulation a 500: ")
+# simulate4(world, algorithm, 'PRandom', 500,randomseed=randomseed)
+# print("simulation a 8500: ")
+# simulate4(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
+# print()
 
 
 # reset_simulation(world, algorithm)  # Reset for next experiment
