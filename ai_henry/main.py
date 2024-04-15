@@ -316,7 +316,7 @@ def simulate2(world, algorithm, policy, steps, randomseed):
 #where if its less than 3, reset the pd world like normal and if it's greater than 3 or less than 6, reset the pdworld but
 #with the experiment4 variable enabled, this changes the pickup locations to the new locations in our PD world class specified in our requriements
 #Once it reaches 6, the program terminates completely.
-def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates = 0):
+def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates):
     terminalStateCount = TerminalStates
     for step in range(steps):
         if world.check_terminal_state():
@@ -423,9 +423,9 @@ def reset_simulation(world, algorithm):
 # print("initial world: ")
 # world.display_world()
 # print("simulation a 500: ")
-# simulate4(world, algorithm, 'PRandom', 500,randomseed=randomseed)
+# terminal_states = simulate4(world, algorithm, 'PRandom', 500,randomseed, 0)
 # print("simulation a 8500: ")
-# simulate4(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
+# simulate4(world, algorithm, 'PExploit', 8500,randomseed, terminal_states)
 # print()
 
 
