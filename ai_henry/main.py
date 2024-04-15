@@ -1,5 +1,8 @@
 import random
 
+
+#The agent class is the basis of our 3 agents in out PD world, the move, pickup, and dropoff functions are used in our simulate function 
+#When we are moving around agents around the pdworld based on our algorithm in simulate.
 class Agent:
     def __init__(self, start_position, name):
         self.position = start_position
@@ -19,21 +22,25 @@ class Agent:
         
 
     def pickup(self, world):
+        #the agent will pick up a block if its in the pickup cell, the number of blocks is greater than 0, and the agent does not have a block
+        #This will be called by our simulate function and will be used in the process of determining the action our agents will take
         if world.is_pickup_cell(self.position) and world.pickup_cells[self.position] > 0 and not self.has_block:
             self.has_block = True
             world.pickup_cells[self.position] -= 1
-            # print(f"{self.name} picked up a block at {self.position}.")
-        # else:
-        #     print(f"{self.name} failed to pick up a block at {self.position}. Conditions not met.")
+            print(f"{self.name} picked up a block at {self.position}.")
     
     def dropoff(self, world):
+        #the agent will drop off a block if its in the dropoff cell, the number of blocks is less than 5, and the agent has a block
+        #This will be called by our simulate function and will be used in the process of determining the action our agents will take
+
         if world.is_dropoff_cell(self.position) and world.dropoff_cells[self.position] < 5 and self.has_block:
             self.has_block = False
             world.dropoff_cells[self.position] += 1
-            # print(f"{self.name} dropped off a block at {self.position}.")
-        # else:
-        #     print(f"{self.name} failed to drop off a block at {self.position}. Conditions not met.")
-
+            print(f"{self.name} dropped off a block at {self.position}.")
+     
+#PD world creates our vizualization of our grid and has functions that prevent oddities in the creation of the visuals such
+#as boundary checking, terminal state checks, and determining whether a position is a dropoff cell or pickup cell.
+# THis is where the instantiation of our agents locations and pickup and dropoff locations are in.
 class PDWorld:
     def __init__(self, randomseed, experiment4 = False):
         self.grid_size = (5, 5)
@@ -44,6 +51,8 @@ class PDWorld:
             'blue': Agent((4, 2), 'Blue'),  # Starts on the bottom row, middle column
             'black': Agent((0, 2), 'Black')  # Starts on the top row, middle column
         }
+        
+        #Will change the pickup locations if we using experiment 4
         self.experiment4 = experiment4
         if self.experiment4 == False:
 
@@ -53,6 +62,7 @@ class PDWorld:
             self.pickup_cells = {(2, 4): 5, (3, 3): 5, (4, 2): 5}
             
         self.dropoff_cells = {(0, 0): 0, (2, 0): 0, (3, 4): 0}
+        
         self.randomseed = randomseed
         random.seed(self.randomseed)
     
@@ -92,7 +102,11 @@ class PDWorld:
         print('\n'.join(' '.join(row) for row in grid))
         print()
         
-
+#This is our regular Q-learning algorithm with a q table function and policies instantiated within. This algorithm function
+#will be passed into our simulate function and will be a major factor in determining the moves that the simulate function will take
+#This class specifies the policies, the best action based on the policy and actions that the program is allowed to take under
+#the get_applicable_actions function. This also has our qtable function which has our q-learning equation and is a big factor on
+#what our pvalues for our pd world will be.
 class RLAlgorithm:
     def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff']):
         self.q_table = {}
@@ -156,6 +170,12 @@ class RLAlgorithm:
             state, action = key
             print(f"State {state}, Action {action}: {value:.2f}")
 
+
+#This is our SARSA algorithm, it is a extension of our q-learning algorithm class however the biggest difference is the determining of our q values 
+#which is in our update_q_table function. The equation in this function is vastly different from our update_q_table in the regular
+#q-learning algorithm. Most of the methology is the same where we have our policy specification, our best action under each policy determining function, a
+#and our applicable actions function.
+
 class Sarsa(RLAlgorithm):
     def __init__(self, learning_rate=0.1, discount_factor=0.9, actions=['north', 'south', 'east', 'west', 'pickup', 'dropoff']):
         self.q_table = {}
@@ -218,6 +238,15 @@ class Sarsa(RLAlgorithm):
             state, action = key
             print(f"State {state}, Action {action}: {value:.2f}")
 
+
+
+#Experiment 1
+#This simulate function is our runtime function for our regular q-learning algorithm class.
+#This function is what outputs our pdworld and moves the agents at the same time. The q-learning 
+#algorithm is passed through here alongside its policy and the q-learning class determines the best action
+#based on the policy and returns the best action, this action moves the agents in all sorts of directions. After the 
+#agent is moved, the q value is updated alonside with it our q table is outputted when we finish all the steps values specified.
+#the movement of the agent is resulted in our visualization which is called under world.displayworld()
 def simulate(world, algorithm, policy, steps,randomseed):
     for step in range(steps):
         if world.check_terminal_state():
@@ -237,12 +266,13 @@ def simulate(world, algorithm, policy, steps,randomseed):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
-    # algorithm.print_q_table()
+    algorithm.print_q_table()
     world.display_world()
-      # Print the Q-table at the end of the simulation
     
-    
-#experiment 2 sarsa
+#Experiment 2/3    
+#This simulate function is very similar to the first simulate function however it is built for SARSA/
+#What differs is the implementation of a queue helps remember the action that has already been determined. This 
+#helps determine the guarenteed next action for our agent.
 def simulate2(world, algorithm, policy, steps, randomseed):
     Actions = ['','','']
     terminal_counter = 0
@@ -271,13 +301,14 @@ def simulate2(world, algorithm, policy, steps, randomseed):
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
-          
+    algorithm.print_q_table()      
     world.display_world()
-    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
 
-    # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
     
-#experiment 4
+#experiment 4 works very similar to experiment 2/3 however with the implementation of the terminal state conditions
+#where if its less than 3, reset the pd world like normal and if it's greater than 3 or less than 6, reset the pdworld but
+#with the experiment4 variable enabled, this changes the pickup locations to the new locations in our PD world class specified in our requriements
+#Once it reaches 6, the program terminates completely.
 def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates = 0):
     terminalStateCount = TerminalStates
     for step in range(steps):
@@ -365,49 +396,4 @@ print()
 # simulate4(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
 # print()
 
-
-# reset_simulation(world, algorithm)  # Reset for next experiment
-
-#print("simulation b 500: ")
-#simulate(world, algorithm, 'PRandom', 500)
-#print("simulation b 8500: ")
-#simulate(world, algorithm, 'PGreedy', 8500)
-#print()
-
-
-#reset_simulation(world, algorithm)  # Reset for next experiment
-
-#print("simulation c 500: ")
-#simulate(world, algorithm, 'PRandom', 500)
-#print("simulation c 8500: ")
-#simulate(world, algorithm, 'PExploit', 8500)
-#print()
-
-#world = PDWorld()
-#algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
-#reset_simulation(world, algorithm)  # Reset for next experiment
-
-#print("SARSA simulation:")
-#simulate2(world, algorithm, 'PExploit', 9000)
-# print("simulation b 500: ")
-# simulate(world, algorithm, 'PRandom', 500)
-# print("simulation b 8500: ")
-# simulate(world, algorithm, 'PGreedy', 8500)
-# print()
-
-
-# reset_simulation(world, algorithm)  # Reset for next experiment
-
-# print("simulation c 500: ")
-# simulate(world, algorithm, 'PRandom', 500)
-# print("simulation c 8500: ")
-# simulate(world, algorithm, 'PExploit', 8500)
-# print()
-
-# world = PDWorld()
-# algorithm = Sarsa(learning_rate=0.3, discount_factor=0.5)
-# reset_simulation(world, algorithm)  # Reset for next experiment
-
-# print("SARSA simulation:")
-# simulate2(world, algorithm, 'PExploit', 9000)
 
