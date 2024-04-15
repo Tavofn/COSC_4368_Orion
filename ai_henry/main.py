@@ -309,7 +309,7 @@ def simulate2(world, algorithm, policy, steps, randomseed):
 #where if its less than 3, reset the pd world like normal and if it's greater than 3 or less than 6, reset the pdworld but
 #with the experiment4 variable enabled, this changes the pickup locations to the new locations in our PD world class specified in our requriements
 #Once it reaches 6, the program terminates completely.
-def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates = 0):
+def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates):
     terminalStateCount = TerminalStates
     for step in range(steps):
         if world.check_terminal_state():
@@ -373,27 +373,27 @@ def reset_simulation(world, algorithm):
 # print()
 
 #Experiment 3 using sarsa
-randomseed = 42
-world = PDWorld(randomseed)
-algorithm = Sarsa(learning_rate=0.45, discount_factor=0.5)
-print("initial world: ")
-world.display_world()
-print("simulation a 500: ")
-simulate2(world, algorithm, 'PRandom', 500,randomseed=randomseed)
-print("simulation a 8500: ")
-simulate2(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
-print()
+#randomseed = 42
+#world = PDWorld(randomseed)
+#algorithm = Sarsa(learning_rate=0.45, discount_factor=0.5)
+#print("initial world: ")
+#world.display_world()
+#print("simulation a 500: ")
+#simulate2(world, algorithm, 'PRandom', 500,randomseed=randomseed)
+#print("simulation a 8500: ")
+#simulate2(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
+#print()
 
 #Experiment 4
-# randomseed = 42
-# world = PDWorld(randomseed=randomseed)
-# algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
-# print("initial world: ")
-# world.display_world()
-# print("simulation a 500: ")
-# simulate4(world, algorithm, 'PRandom', 500,randomseed=randomseed)
-# print("simulation a 8500: ")
-# simulate4(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
-# print()
+#randomseed = 42
+#world = PDWorld(randomseed=randomseed)
+#algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+#print("initial world: ")
+#world.display_world()
+#print("simulation a 500: ")
+#terminal_states = simulate4(world, algorithm, 'PRandom', 500,randomseed, 0)
+#print("simulation a 8500: ")
+#simulate4(world, algorithm, 'PExploit', 8500,randomseed, terminal_states)
+#print()
 
 
