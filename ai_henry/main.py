@@ -248,9 +248,13 @@ class Sarsa(RLAlgorithm):
 #agent is moved, the q value is updated alonside with it our q table is outputted when we finish all the steps values specified.
 #the movement of the agent is resulted in our visualization which is called under world.displayworld()
 def simulate(world, algorithm, policy, steps,randomseed):
+    terminalStateCount = 0
     for step in range(steps):
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
+            terminalStateCount += 1
+            print("TERMINAL STATE COUNT ADDED")
+            print(terminalStateCount)
             world.__init__(randomseed=randomseed)  
         for name, agent in world.agents.items():
             state = (agent.position, agent.has_block)
@@ -266,7 +270,8 @@ def simulate(world, algorithm, policy, steps,randomseed):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
-    algorithm.print_q_table()
+    if(steps > 500):
+        algorithm.print_q_table()
     world.display_world()
     
 #Experiment 2/3    
@@ -280,6 +285,7 @@ def simulate2(world, algorithm, policy, steps, randomseed):
         if world.check_terminal_state():
             print(f"Terminal state reached after {step} steps.")
             terminal_counter+=1
+            print("TERMINAL STATE COUNT ADDED")
             print(terminal_counter)
             world.__init__(randomseed=randomseed)                                                                                                                                                                                                
             Actions = ['','','']
@@ -301,7 +307,8 @@ def simulate2(world, algorithm, policy, steps, randomseed):
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
-    algorithm.print_q_table()      
+    if(steps > 500):
+        algorithm.print_q_table()     
     world.display_world()
 
     
@@ -336,6 +343,8 @@ def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates = 0):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
+    if(steps > 500):
+        algorithm.print_q_table()
     world.display_world()
     if not world.check_terminal_state():
         print(f"Simulation ended without reaching the terminal state after {steps} steps.")
@@ -350,15 +359,38 @@ def reset_simulation(world, algorithm):
 
 # Initialize the world and run the simulation
 
-#Experiment 1.c
-# world = PDWorld(42)
+#Experiment 1.a
+# world = PDWorld(randomseed=42)
 # algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
 # print("initial world: ")
 # world.display_world()
 # print("simulation a 500: ")
-# simulate(world, algorithm, 'PRandom', 500)
+# simulate(world, algorithm, 'PRandom', 500,randomseed=42)
 # print("simulation a 8500: ")
-# simulate(world, algorithm, 'PExploit', 8500)
+# simulate(world, algorithm, 'PRandom', 8500,randomseed=42)
+# print()
+
+
+#Experiment 1.b
+# world = PDWorld(randomseed=42)
+# algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+# print("initial world: ")
+# world.display_world()
+# print("simulation a 500: ")
+# simulate(world, algorithm, 'PRandom', 500,randomseed=42)
+# print("simulation a 8500: ")
+# simulate(world, algorithm, 'PGreedy', 8500,randomseed=42)
+# print()
+
+#Experiment 1.c
+# world = PDWorld(randomseed=42)
+# algorithm = RLAlgorithm(learning_rate=0.3, discount_factor=0.5)
+# print("initial world: ")
+# world.display_world()
+# print("simulation a 500: ")
+# simulate(world, algorithm, 'PRandom', 500,randomseed=42)
+# print("simulation a 8500: ")
+# simulate(world, algorithm, 'PExploit', 8500,randomseed=42)
 # print()
 
 #Experiment 2
@@ -373,16 +405,16 @@ def reset_simulation(world, algorithm):
 # print()
 
 #Experiment 3 using sarsa
-randomseed = 42
-world = PDWorld(randomseed)
-algorithm = Sarsa(learning_rate=0.45, discount_factor=0.5)
-print("initial world: ")
-world.display_world()
-print("simulation a 500: ")
-simulate2(world, algorithm, 'PRandom', 500,randomseed=randomseed)
-print("simulation a 8500: ")
-simulate2(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
-print()
+# randomseed = 42
+# world = PDWorld(randomseed)
+# algorithm = Sarsa(learning_rate=0.45, discount_factor=0.5)
+# print("initial world: ")
+# world.display_world()
+# print("simulation a 500: ")
+# simulate2(world, algorithm, 'PRandom', 500,randomseed=randomseed)
+# print("simulation a 8500: ")
+# simulate2(world, algorithm, 'PExploit', 8500,randomseed=randomseed)
+# print()
 
 #Experiment 4
 # randomseed = 42
