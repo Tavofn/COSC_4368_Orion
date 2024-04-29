@@ -270,9 +270,10 @@ def simulate(world, algorithm, policy, steps,randomseed):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
+        world.display_world()
     if(steps > 500):
         algorithm.print_q_table()
-    world.display_world()
+    
     
 #Experiment 2/3    
 #This simulate function is very similar to the first simulate function however it is built for SARSA/
@@ -307,9 +308,9 @@ def simulate2(world, algorithm, policy, steps, randomseed):
             Actions.append(next_action)
             reward = -1 if next_action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, next_action, policy)
+        world.display_world()
     if(steps > 500):
         algorithm.print_q_table()     
-    world.display_world()
 
     
 #experiment 4 works very similar to experiment 2/3 however with the implementation of the terminal state conditions
@@ -343,9 +344,10 @@ def simulate4(world, algorithm, policy, steps, randomseed, TerminalStates):
             next_state = (agent.position, agent.has_block)
             reward = -1 if action in ['north', 'south', 'east', 'west'] else 13
             algorithm.update_q_table(state, action, reward, next_state, policy)
+        world.display_world()
     if(steps > 500):
         algorithm.print_q_table()
-    world.display_world()
+    
     if not world.check_terminal_state():
         print(f"Simulation ended without reaching the terminal state after {steps} steps.")
     # algorithm.print_q_table()  # Print the Q-table at the end of the simulation
